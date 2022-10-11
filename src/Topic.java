@@ -6,7 +6,7 @@ public class Topic {
     Map <String,String> subscribers;
     LinkedHashMap <String,Message> messages;  
 
-    private Boolean hasMessages(String subscriberID){
+    private boolean hasMessages(String subscriberID){
         return subscribers.get(subscriberID)!=null;
     }
 
