@@ -1,0 +1,61 @@
+import org.zeromq.SocketType;
+import org.zeromq.ZContext;
+import org.zeromq.ZMQ;
+import org.zeromq.ZMsg;
+
+import java.nio.charset.StandardCharsets;
+
+public class SocketOwner {
+    private static final int RECEIVETIMEOUT = 10000;
+
+    protected ZMQ.Socket socket;
+    protected String id;
+    protected String endpoint;
+    protected ZContext zctx;
+    protected int nTimeouts;
+
+    public SocketOwner(ZContext zctx, String id, String endpoint) {
+        this.zctx = zctx;
+        this.endpoint = endpoint;
+        this.id = id;
+        this.setUpSocket();
+    }
+
+    protected void setUpSocket() {
+        this.socket = zctx.createSocket(SocketType.REQ);
+        this.socket.setIdentity(id.getBytes(StandardCharsets.UTF_8));
+        this.socket.setReceiveTimeOut(SocketOwner.RECEIVETIMEOUT);
+    }
+
+    public ZMsg sendReceive(ZMsg reqZMsg) throws Exception {
+        ZMsg replyZMsg = null;
+        nTimeouts = -1;
+
+        while (replyZMsg == null) {
+            ++nTimeouts;
+            if (!reqZMsg.send(this.socket)) return null;
+            replyZMsg = this.receiveMsg();
+        }
+        return replyZMsg;
+    }
+
+    public void reconnect() {
+        this.socket.close();
+        this.setUpSocket();
+        this.connect();
+    }
+
+    public boolean connect() {
+        return this.socket.connect(this.endpoint);
+    }
+
+    public ZMsg receiveMsg() {
+        ZMsg replyZMsg = ZMsg.recvMsg(this.socket);
+        if (replyZMsg == null) {
+            System.err.println("Receive timed out. Reconnecting...");
+            this.reconnect();
+        }
+
+        return replyZMsg;
+    }
+}
