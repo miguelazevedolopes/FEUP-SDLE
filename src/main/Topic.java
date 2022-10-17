@@ -34,16 +34,16 @@ public class Topic {
         return messages.get(msgID);
     }
 
-    public void updateSubscriberNextMessage(String subscriberID){
+    public synchronized void updateSubscriberNextMessage(String subscriberID){
         String nextMessageID=getNextMessageID(subscriberID);
         subscribers.put(subscriberID,nextMessageID);
     }
 
-    public void subscribe(String subscriberID){
+    public synchronized void subscribe(String subscriberID){
         subscribers.put(subscriberID, null);
     }
 
-    public void publish(Message message){
+    public synchronized void publish(Message message){
         if(!messages.containsKey(message.getID()))
             messages.put(message.getID(), message);
         for (Map.Entry<String,String> entry : subscribers.entrySet()){

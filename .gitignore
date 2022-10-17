@@ -2,5 +2,10 @@ src/target/
 src/build.xml
 src/maven-build.properties
 src/maven-build.xml
+build.xml
+maven-build.properties
+maven-build.xml
+target/
 .idea/
+.vscode/
 .DS_Store
