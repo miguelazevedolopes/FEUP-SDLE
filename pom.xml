@@ -5,10 +5,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.sdle</groupId>
-  <artifactId>zguide</artifactId>
+  <artifactId>proj1</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>zguide</name>
+  <name>proj1</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
@@ -33,6 +33,10 @@
   </dependencies>
 
   <build>
+    <sourceDirectory>${basedir}/src/main</sourceDirectory>
+    <testSourceDirectory>${basedir}/src/test</testSourceDirectory>
+    <outputDirectory>${basedir}/target/classes</outputDirectory>
+    <testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
         <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->

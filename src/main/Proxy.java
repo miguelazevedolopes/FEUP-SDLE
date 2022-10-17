@@ -6,7 +6,7 @@ import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQ.Poller;
 import org.zeromq.*;
 
-public class Proxy {
+public class Proxy extends Thread{
     public final String PUB_SOCKET="5555";
     public final String SUB_SOCKET="5556";
     private boolean keepRunning = true;
@@ -15,9 +15,13 @@ public class Proxy {
 
     final ExecutorService threadPool;
 
+    ZContext ctx;
+    Socket publisherSocket,subscriberSocket;
+    
     public Proxy(){
-        Socket publisherSocket = ctx.createSocket(SocketType.ROUTER);
-        Socket subscriberSocket = ctx.createSocket(SocketType.ROUTER);
+        ctx = new ZContext(); //?
+        publisherSocket = ctx.createSocket(SocketType.ROUTER);
+        subscriberSocket = ctx.createSocket(SocketType.ROUTER);
         publisherSocket.bind("tcp://*:" + PUB_SOCKET); 
         subscriberSocket.bind("tcp://*:" + SUB_SOCKET);
         threadPool= Executors.newCachedThreadPool();
@@ -33,16 +37,26 @@ public class Proxy {
 
     private void pollSockets(){
         Poller poller = ctx.createPoller(2);
-        poller.register(this.pubSocket, Poller.POLLIN);
-        poller.register(this.subSocket, Poller.POLLIN);
+        poller.register(this.publisherSocket, Poller.POLLIN);
+        poller.register(this.subscriberSocket, Poller.POLLIN);
 
         while(keepRunning()){
+            byte[] message;
             if(poller.poll()>=0){
                 if(poller.pollin(0)){
-                    threadPool.execute(new ProxyThread(ThreadType.PUB_HANDLER));
+                    message=publisherSocket.recv(0);
+                    threadPool.execute(new ProxyThread(ThreadType.PUB_HANDLER,topics));
+                }
+                if(poller.pollin(1)){
+                    message=publisherSocket.recv(0);
+                    threadPool.execute(new ProxyThread(ThreadType.SUB_HANDLER,topics));
                 }
             }
         }
+    }
+
+    public void start(){
+        pollSockets();
     }
 
 }
