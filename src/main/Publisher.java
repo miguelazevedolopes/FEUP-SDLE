@@ -3,6 +3,7 @@ import org.zeromq.*;
 import org.zeromq.ZContext;
 import java.sql.Timestamp;
 import org.zeromq.ZMsg;
+
 public class Publisher {
     public final String PUB_SOCKET="5555";
 
@@ -19,10 +20,10 @@ public class Publisher {
         pubSocket.connect("tcp://*:" + PUB_SOCKET);
 
         Message msg = new Message(this.id,"PUT",timestamp,args);
-        String message=msg.createMessage();
+        String messageString=msg.createMessage();
 
-        pubSocket.send(message);
-
+        pubSocket.send(messageString);
+        //tratar da mensagem ok do servidor
     }
 
 

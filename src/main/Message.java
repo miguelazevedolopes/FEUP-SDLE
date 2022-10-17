@@ -3,4 +3,7 @@ public class Message {
         // criei esta funçao só para nao me dar error warnings
         return null;
     }
+    public String createMessage(){
+        return null;
+    }
 }
