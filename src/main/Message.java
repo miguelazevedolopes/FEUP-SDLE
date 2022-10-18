@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This class represents a message.
@@ -26,8 +27,8 @@ public class Message {
     private String id = null;
     private String cmd;
     private String senderID;
-    private String topic = "";
-    private String content = "";
+    private String topic = null;
+    private String content = null;
 
 
     public Message(MessageType cmd, String senderID) {
@@ -45,7 +46,7 @@ public class Message {
     public Message( MessageType cmd,String senderID, String topic ) {
         this.cmd = cmd.name();
         this.senderID = senderID;
-        this.topic = topic;
+        this.topic = Objects.equals(topic, "") ? null : topic;;
     }
 
     /**
@@ -54,8 +55,8 @@ public class Message {
     public Message(MessageType cmd, String senderID, String topic, String content ) {
         this.cmd = cmd.name();
         this.senderID = senderID;
-        this.topic = topic;
-        this.content = content;
+        this.topic = Objects.equals(topic, "") ? null : topic;
+        this.content = Objects.equals(content, "") ? null : content;
 
         this.createID();
     }
@@ -126,11 +127,11 @@ public class Message {
            this.content = "";
            return;
        }else{
-           this.topic = topic;
+           this.topic = topic.equals("") ? null : topic;
 
        }
-
-        this.content = msg.popString();
+        String content = msg.popString();
+        this.content = content.equals("") ? null : content;
 
 
     }
