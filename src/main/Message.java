@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This class represents a message.
@@ -24,8 +25,8 @@ public class Message implements Serializable{
     private String id = null;
     private String messageType;
     private String clientID;
-    private String topic = "";
-    private String content = "";
+    private String topic = null;
+    private String content = null;
 
 
     public Message(MessageType messageType, String clientID) {
@@ -43,7 +44,7 @@ public class Message implements Serializable{
     public Message( MessageType messageType,String clientID, String topic ) {
         this.messageType = messageType.name();
         this.clientID = clientID;
-        this.topic = topic;
+        this.topic = Objects.equals(topic, "") ? null : topic;;
     }
 
     /**
@@ -52,9 +53,8 @@ public class Message implements Serializable{
     public Message(MessageType messageType, String clientID, String topic, String content ) {
         this.messageType = messageType.name();
         this.clientID = clientID;
-        this.topic = topic;
-        this.content = content;
-
+        this.topic = Objects.equals(topic, "") ? null : topic;
+        this.content = Objects.equals(content, "") ? null : content;
         this.createID();
     }
 
@@ -124,11 +124,11 @@ public class Message implements Serializable{
            this.content = "";
            return;
        }else{
-           this.topic = topic;
+           this.topic = topic.equals("") ? null : topic;
 
        }
-
-        this.content = msg.popString();
+        String content = msg.popString();
+        this.content = content.equals("") ? null : content;
 
 
     }
@@ -154,6 +154,4 @@ public class Message implements Serializable{
         // criei esta funçao só para nao me dar error warnings
         return this.id;
     }
-
-
 }

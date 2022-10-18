@@ -7,6 +7,7 @@ public class MessageTest extends TestCase {
         //Test 1 - Create a message with a topic and read it to ensure it is correct
         Message message = new Message(MessageType.PUT,"id","topic","content");
         ZMsg zmsg = message.createMessage();
+        System.out.println(zmsg.toString());
         Message message2 = new Message(zmsg);
         assertEquals(message.getMessageType(),message2.getMessageType());
         assertEquals(message.getID(),message2.getID());
@@ -16,6 +17,7 @@ public class MessageTest extends TestCase {
         //Test 2 - Create a message without a topic and read it to ensure it is correct
         Message message3 = new Message(MessageType.PUT,"id","","content");
         ZMsg zmsg2 = message3.createMessage();
+        System.out.println(zmsg2.toString());
         Message message4 = new Message(zmsg2);
         assertEquals(message3.getMessageType(),message4.getMessageType());
         assertEquals(message3.getID(),message4.getID());
@@ -25,6 +27,7 @@ public class MessageTest extends TestCase {
         //Test 3 - Create a message without a content and read it to ensure it is correct
         Message message5 = new Message(MessageType.PUT,"id","topic","");
         ZMsg zmsg3 = message5.createMessage();
+        System.out.println(zmsg3.toString());
         Message message6 = new Message(zmsg3);
         assertEquals(message5.getMessageType(),message6.getMessageType());
         assertEquals(message5.getID(),message6.getID());
@@ -34,6 +37,7 @@ public class MessageTest extends TestCase {
         //Test 4 - Create a message without a topic or content and read it to ensure it is correct
         Message message7 = new Message(MessageType.PUT,"id","","");
         ZMsg zmsg4 = message7.createMessage();
+        System.out.println(zmsg4.toString());
         Message message8 = new Message(zmsg4);
         assertEquals(message7.getMessageType(),message8.getMessageType());
         assertEquals(message7.getID(),message8.getID());
@@ -43,6 +47,7 @@ public class MessageTest extends TestCase {
         //Test 5 - Create a message with a topic and read it to ensure it is correct
         Message message9 = new Message(MessageType.GET,"id","topic");
         ZMsg zmsg5 = message9.createMessage();
+        System.out.println(zmsg5.toString());
         Message message10 = new Message(zmsg5);
         assertEquals(message9.getMessageType(),message10.getMessageType());
         assertEquals(message9.getID(),message10.getID());
@@ -52,6 +57,7 @@ public class MessageTest extends TestCase {
         //Test 6 - Create a message without a topic and read it to ensure it is correct
         Message message11 = new Message(MessageType.GET,"id","");
         ZMsg zmsg6 = message11.createMessage();
+        System.out.println(zmsg6.toString());
         Message message12 = new Message(zmsg6);
         assertEquals(message11.getMessageType(),message12.getMessageType());
         assertEquals(message11.getID(),message12.getID());
@@ -61,11 +67,20 @@ public class MessageTest extends TestCase {
         //Test 7 - Create a message with a topic and read it to ensure it is correct
         Message message13 = new Message(MessageType.SUB,"id");
         ZMsg zmsg7 = message13.createMessage();
+        System.out.println(zmsg7.toString());
         Message message14 = new Message(zmsg7);
         assertEquals(message13.getMessageType(),message14.getMessageType());
         assertEquals(message13.getID(),message14.getID());
         assertEquals(message13.getTopic(),message14.getTopic());
         assertEquals(message13.getContent(),message14.getContent());
 
+
+        Message message30 = new Message(MessageType.SUB,"id", "", "");
+        ZMsg zmsg30 = message30.createMessage();
+
+        System.out.println(zmsg30.toString());
+
+
     }
+
 }

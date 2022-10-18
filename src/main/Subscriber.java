@@ -53,7 +53,7 @@ public class Subscriber extends SocketOwner{
             String idMsg =reply_msg.getID();
 
             String content = reply_msg.getContent();
-            if(content.equals(""))
+            if(content == null)
                 System.out.println("No new messages!");
             else
                 System.out.println(content);
