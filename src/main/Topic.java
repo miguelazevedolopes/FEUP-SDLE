@@ -3,7 +3,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Topic {
+    
+    /*
+     * Maps SubscriberIDs to MessageIDs
+     */
     Map <String,String> subscribers;
+
+    /*
+     * Maps MessageIDs to the actual message object
+     */
     LinkedHashMap <String,Message> messages;  
 
     private boolean hasMessages(String subscriberID){
@@ -37,10 +45,15 @@ public class Topic {
     public synchronized void updateSubscriberNextMessage(String subscriberID){
         String nextMessageID=getNextMessageID(subscriberID);
         subscribers.put(subscriberID,nextMessageID);
+        
     }
 
     public synchronized void subscribe(String subscriberID){
         subscribers.put(subscriberID, null);
+    }
+
+    public synchronized void unsubscribe(String subscriberID){
+        subscribers.remove(subscriberID);
     }
 
     public synchronized void publish(Message message){

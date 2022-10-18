@@ -24,10 +24,10 @@ public class ProxyThread implements Runnable{
                 Topic topic = topics.get(message.getTopic());
                 topic.getMessage(message.getSubscriberID());
                 // Envia Message e aguarda por ACK. Se receber envia OK. Se não receber ACK reenvia K vezes até receber 
-                
                 if(true){ /*Tudo correr direitinho */
                     topic.updateSubscriberNextMessage(message.getSubscriberID);
                 }
+
             default:
                 // Se isto acontecer é porque algo correu muito mal, ignora e envia msg de erro
                 break;

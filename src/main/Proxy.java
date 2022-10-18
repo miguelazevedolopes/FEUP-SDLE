@@ -45,11 +45,11 @@ public class Proxy extends Thread{
             if(poller.poll()>=0){
                 if(poller.pollin(0)){
                     message=publisherSocket.recv(0);
-                    threadPool.execute(new ProxyThread(ThreadType.PUB_HANDLER,topics));
+                    threadPool.execute(new ProxyThread(ThreadType.PUB_HANDLER,topics,message));
                 }
                 if(poller.pollin(1)){
                     message=publisherSocket.recv(0);
-                    threadPool.execute(new ProxyThread(ThreadType.SUB_HANDLER,topics));
+                    threadPool.execute(new ProxyThread(ThreadType.SUB_HANDLER,topics,message));
                 }
             }
         }
