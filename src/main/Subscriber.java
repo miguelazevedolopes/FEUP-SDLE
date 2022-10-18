@@ -1,91 +1,86 @@
-import org.zeromq.ZMQ.Socket;
-import org.zeromq.*;
+import javax.xml.transform.Source;
+
 import org.zeromq.ZContext;
-import java.sql.Timestamp;
 import org.zeromq.ZMsg;
 
 
-public class Subscriber {
+public class Subscriber extends SocketOwner{
 
-    public final String SUB_SOCKET="5556";
-
-    public Subscriber(ZContext ctx,String id){
-        super(ctx,id);
+    public Subscriber(ZContext ctx,String id, String endpoint){
+         super(ctx,id,endpoint);
     }
 
     public void subscribe(String topic){
-        String args[] = new String[1];
-        args[0]=topic;
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        Socket subSocket = ctx.createSocket(SocketType.REQ);
+        setup();
+        connect();
+        Message msg = new Message(MessageType.SUB,this.id,topic);
+        ZMsg message=msg.createMessage();
 
-        subSocket.connect("tcp://*:" + SUB_SOCKET);
+        message.send(socketZMQ);
 
-        Message msg = new Message(this.id,"SUBSCRIBE",timestamp,args);
-        String message=msg.createMessage();
+        ZMsg reply = ZMsg.recvMsg(socketZMQ);
+        Message reply_msg = new Message(reply);
 
-        subSocket.send(message);
+        System.out.println(reply_msg.getCmd().toString());
     }
 
     public void unsubscribe(String topic){
-        String args[] = new String[1];
-        args[0]=topic;
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        Socket subSocket = ctx.createSocket(SocketType.REQ);
+        setup();
+        connect();
 
-        subSocket.connect("tcp://*:" + SUB_SOCKET);
+        Message msg = new Message(MessageType.UNSUB,this.id,topic);
+        ZMsg message=msg.createMessage();
 
-        Message msg = new Message(this.id,"UNSUBSCRIBE",timestamp,args);
-        String message=msg.createMessage();
+        message.send(socketZMQ);
 
-        subSocket.send(message);
+        ZMsg reply = ZMsg.recvMsg(socketZMQ);
+        Message reply_msg = new Message(reply);
+
+        System.out.println(reply_msg.getCmd().toString());
     }
 
 
     public void get(String topic){
-        //GET e nao esta subscrito, GET e nao tem updates ou get e tem content
-        String args[] = new String[1];
-        args[0]=topic;
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        Socket subSocket = ctx.createSocket(SocketType.REQ);
-        subSocket.setReceiveTimeOut(3000);//3 segundos
-        subSocket.connect("tcp://*:" + SUB_SOCKET);
+        setup();
+        connect();
 
-        Message msg = new Message(this.id,"GET",timestamp,args);
-        String message=msg.createMessage();
+        Message msg = new Message(MessageType.GET,this.id,topic);
+        ZMsg message=msg.createMessage();
 
-        subSocket.send(message);
-        //tratar das mensagens com o servidor (ACK E OK)
+        message.send(socketZMQ);
 
-        byte [] reply = subSocket.recv(0);
-        String reply_string = new String(reply,ZMQ.CHARSET);
-        Message reply_msg = new Message(reply_string);
-        if (reply_msg.getType().equals("CONTENT")){
-            String args_reply [] = new String[1];
-            Timestamp timestampReply = new Timestamp(System.currentTimeMillis());
-            //ID MESSAGE CONTEUDO 
-            int idMsg =reply_msg.getArgs(0);
-            args_reply[0]=id;
-            //content se for null não ha update ? ou vem uma mensagem diferente quando não ha update (type==EMPTY)
-            String content = reply_msg.getArgs(1);
-            //o que fazemos com o content damos print ou fazemos return e tratamos na main??
+        ZMsg reply = ZMsg.recvMsg(socketZMQ);
+        Message reply_msg = new Message(reply);
+        if (reply_msg.getCmd()==MessageType.GET_REP){
+            String idMsg =reply_msg.getID();
+
+            String content = reply_msg.getContent();
+            if(content.equals(null))
+                System.out.println("No new messages!");
+            else
+                System.out.println(content);
+
             int tries=0;
             boolean okMsg=false;
-            Message ack_msg = new Message(this.id,"ACK",timestampReply,idMsg);
-            subSocket.send(ack_msg.createMessage());
+            Message ack_msg = new Message(MessageType.ACK,this.id,idMsg);
+            ack_msg.createMessage().send(socketZMQ);
             while(tries<3 && !okMsg ){
-                byte [] replyOk = subSocket.recv(0);
+                
+                ZMsg replyOk = ZMsg.recvMsg(socketZMQ);
+                Message msg_Ok= new Message(replyOk);
+
                 if(replyOk!=null){
                     okMsg=true;
-                    //print?
+                    String cmd =msg_Ok.getCmd().toString();
+                    System.out.println(cmd);
                 }
                     
                 tries++;
             }
             
+        }else if(reply_msg.getCmd()==MessageType.ERROR){
+            System.out.println("Error!");
         }
-           
-        System.out.println(reply_string);
 
     }
 

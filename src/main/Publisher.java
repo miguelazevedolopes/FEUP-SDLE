@@ -1,37 +1,24 @@
-import org.zeromq.ZMQ.Socket;
-import org.zeromq.*;
 import org.zeromq.ZContext;
-import java.sql.Timestamp;
 import org.zeromq.ZMsg;
 
+public class Publisher extends SocketOwner{
 
-public class Publisher {
-    public final String PUB_SOCKET="5555";
-
-    public Publisher(ZContext ctx,String id){
-        super(ctx,id);
+    public Publisher(ZContext ctx,String id, String endpoint){
+        super(ctx,id,endpoint);
     }
     public void put (String topic, String message){
-        String args[] = new String[2];
-        args[0]=topic;
-        args[1]=message;
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        Socket pubSocket = ctx.createSocket(SocketType.REQ);
+        setup();
+        connect();
 
-        pubSocket.connect("tcp://*:" + PUB_SOCKET);
+        Message msg = new Message(MessageType.PUT,this.id,topic,message);
+        ZMsg messageString=msg.createMessage();
 
-        Message msg = new Message(this.id,"PUT",timestamp,args);
-        String messageString=msg.createMessage();
+        messageString.send(socketZMQ);
 
-        pubSocket.send(messageString);
-        //tratar da mensagem ok do servidor
-        // 0 bloqueia ate receber mensagem ou quando o timeout passar (setReceiveTimeOut(int))
-        // DONTWAIT: Specifies that the operation should be performed in non-blocking mode
-        byte [] reply = pubSocket.recv(0);
-        String reply_string = new String(reply,ZMQ.CHARSET);
-        Message reply_msg = new Message(reply_string);
+        ZMsg reply = ZMsg.recvMsg(socketZMQ);
+        Message reply_msg = new Message(reply);
 
-        System.out.println(reply_string);
+        System.out.println(reply_msg.getCmd().toString());
 
 
     }
