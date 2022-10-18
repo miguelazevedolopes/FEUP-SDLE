@@ -1,4 +1,3 @@
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.zeromq.ZContext;
 
@@ -8,6 +7,6 @@ public class SocketOwnerTest {
         ZContext context = new ZContext();
         String id = "test";
         SocketOwner socketOwner = new SocketOwner(context,id,"tcp://localhost:5559");
-        socketOwner.receiveMsg();
+        socketOwner.receiveMessage();
     }
 }
