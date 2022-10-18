@@ -7,71 +7,60 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
-//TODO Question if the prefer to delimiter message per Frames or spaces
-
 /**
  * This class represents a message.
  * The message protocol must have two essential fields: type, messageID ,senderID
- * and the remaining fields or depend on the type of message and will be added to args
  * If the message has no ID, the ID field will be sent as "null"
  * <p>
  * Types of message (type - description - fields)
- * SUB - subscribe - cmd, messageID ,sender_ID, topic
+ * SUB - subscribe - cmd, messageID ,senderID, topic
  * UNSUB - unsubscribe - cmd, messageID ,sender_ID, topic
- * PUT - publish - cmd, messageID ,sender_ID, topic, content
- * GET - get - cmd, messageID ,sender_ID, topic
- * GET_RESP - get response - cmd, messageID, sender_ID, topic, content
- * PUT_ACK - acknowledge that put was successful - cmd, messageID, sender_ID
- * GET_ACK - acknowledge that get was successful received by Subscriber - cmd, , messageID, sender_ID, topic
+ * PUT - publish - cmd, messageID ,senderID, topic, content
+ * GET - get - cmd, messageID ,senderID, topic
+ * GET_RESP - get response - cmd, messageID, senderID, topic, content
+ * ACK - acknowledge that put was successful - cmd, messageID, senderID
+ *
  */
+
 public class Message {
     private String id = null;
     private String cmd;
     private String senderID;
-    private List<String> args;
-    private String message = "";
+    private String topic = "";
+    private String content = "";
 
-   
+
+    public Message(MessageType cmd, String senderID) {
+        this.cmd = cmd.name();
+        this.senderID = senderID;
+    }
+
     /**
      * Constructor
      *
      * @param cmd      type of Message
      * @param senderID sender ID
-     * @param args     arguments that depend on type of message
+     * @param topic    topic of the message
      */
-    public Message( String cmd,String senderID, List<String> args) {
-        this.cmd = cmd;
+    public Message( MessageType cmd,String senderID, String topic ) {
+        this.cmd = cmd.name();
         this.senderID = senderID;
-        this.args = args;
+        this.topic = topic;
     }
 
     /**
      * Message constructor with no need of argument
      */
-    public Message(String cmd, String senderID) {
-        this.cmd = cmd;
+    public Message(MessageType cmd, String senderID, String topic, String content ) {
+        this.cmd = cmd.name();
         this.senderID = senderID;
-        this.args = new ArrayList<>();
+        this.topic = topic;
+        this.content = content;
+
+        this.createID();
+
     }
 
-    public Message(String cmd, String senderID, String arg) {
-        this.cmd = cmd;
-        this.senderID = senderID;
-        this.args = new ArrayList<>();
-        this.args.add(arg);
-    }
-
-    /**
-     * If we add a date argument, it will calculate its id and be an identified message
-     */
-    public Message(String cmd, String senderID, List<String> args, Timestamp date){
-        this.cmd = cmd;
-        this.senderID = senderID;
-        this.args = args;
-
-        this.createID(date);
-    }
 
     /**
      * Constructor
@@ -87,6 +76,7 @@ public class Message {
      * @return A ZMsg instance with the Message class attributes
      */
     public ZMsg createMessage() {
+
         //Creates a string with like "cmd id senderID args"
         StringBuilder sb = new StringBuilder();
         sb.append(this.cmd);
@@ -94,33 +84,28 @@ public class Message {
         sb.append(this.id);
         sb.append(" ");
         sb.append(this.senderID);
-        sb.append(" ");
-        for (String arg : args) {
-            sb.append(args);
-            sb.append(" ");
-        }
 
-        this.message = sb.toString();
+        String header = sb.toString();
+
         ZMsg msg = new ZMsg();
-        msg.add(message.trim());
+        msg.addString(header);
+        if(!this.topic.equals("")) msg.addString(this.topic);
+        if(!this.content.equals("")) msg.addString(this.content);
 
         return msg;
         
     }
 
     /**
-     * Creates an ID with the date and the 
-     * @param date
+     * Creates an ID with the date and the senderID
      */
-    private void createID(Timestamp date){
+    private void createID(){
         StringBuilder sb = new StringBuilder();
+        Timestamp date = new Timestamp(System.currentTimeMillis());
         sb.append(date.getTime());
         sb.append(this.senderID);
-        try {
-            this.id = EncoderSHA.encode(sb.toString());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+        
+        this.id = Integer.toString(sb.toString().hashCode());
 
     }
 
@@ -129,8 +114,8 @@ public class Message {
      * @param msg Message in form of ZMsg
      */
     private void decomposeMessage(ZMsg msg) {
-       this.message = msg.popString();
-       List<String> elements = Arrays.asList(this.message.split(" "));
+       String header = msg.popString();
+       List<String> elements = Arrays.asList(header.split(" "));
        
        this.cmd = elements.get(0);
        this.id = elements.get(1).equals("null")
@@ -139,23 +124,36 @@ public class Message {
 
        this.senderID = elements.get(2);
 
-       this.args = new ArrayList<>();
+       String topic = msg.popString();
+       if(topic == null){
+           this.topic = "";
+           this.content = "";
+           return;
+       }else{
+           this.topic = topic;
+       }
 
-       //If there are no arguments, no need to continue
-       if(elements.size() ==3 ) return;
-
-       //There are arguments so let's pick em up
-       this.args = elements.subList(3, elements.size());     
+        String content = msg.popString();
+        if(content == null){
+            this.content = "";
+        }else{
+            this.content = topic;
+        }
 
     }
 
     // Getters
-    public List<String> getArgs() {
-        return args;
+
+    public String getTopic() {
+        return topic;
     }
 
-    public String getCmd() {
-        return cmd;
+    public String getContent() {
+        return content;
+    }
+
+    public MessageType getCmd() {
+        return MessageType.valueOf(cmd);
     }
 
     public String getSenderID() {
