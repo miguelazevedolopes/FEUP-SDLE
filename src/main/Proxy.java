@@ -1,3 +1,8 @@
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -8,8 +13,9 @@ import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQ.Poller;
 import org.zeromq.*;
 
-public class Proxy extends Thread{
+public class Proxy extends Thread implements Serializable{
     public final String SOCKET_ACCESS="5555";
+    public final String STATE_FILE_PATH="state";
 
     private boolean keepRunning = true;
 
@@ -59,6 +65,7 @@ public class Proxy extends Thread{
                 if(poller.pollin(0)){
                     zmsg=ZMsg.recvMsg(this.socket);
                     threadPool.execute(new ProxyThread(this,new Message(zmsg)));
+                    saveStateToFile();
                 }
             }
         }
@@ -73,5 +80,16 @@ public class Proxy extends Thread{
         topics.put(topicName, topic);
         return topic;
     }
+
+    private void saveStateToFile(){
+        File myFile = new File(STATE_FILE_PATH);
+        try {
+            FileOutputStream fOutputStream = new FileOutputStream(myFile.getAbsolutePath(),false);
+            ObjectOutputStream objOutStream = new ObjectOutputStream(fOutputStream);
+            objOutStream.writeObject(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+   }
 
 }

@@ -91,6 +91,7 @@ public class Message {
         msg.addString(header);
         if(!this.topic.equals("")) msg.addString(this.topic);
         if(!this.content.equals("")) msg.addString(this.content);
+        msg.wrap
 
         return msg;
         
