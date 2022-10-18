@@ -19,7 +19,7 @@ import java.util.List;
  * GET - get - cmd, messageID ,senderID, topic
  * GET_RESP - get response - cmd, messageID, senderID, topic, content
  * ACK - acknowledge that put was successful - cmd, messageID, senderID
- *
+ * ERROR - error - cmd, messageID, senderID, content
  */
 
 public class Message {
@@ -58,9 +58,7 @@ public class Message {
         this.content = content;
 
         this.createID();
-
     }
-
 
     /**
      * Constructor
@@ -77,20 +75,18 @@ public class Message {
      */
     public ZMsg createMessage() {
 
-        //Creates a string with like "cmd id senderID args"
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.cmd);
-        sb.append(" ");
-        sb.append(this.id);
-        sb.append(" ");
-        sb.append(this.senderID);
-
-        String header = sb.toString();
+        //Creates a string with like "cmd id senderID "
 
         ZMsg msg = new ZMsg();
+        msg.addString(this.senderID);
+
+        String header = this.cmd +
+                " " +
+                this.id;
+
         msg.addString(header);
-        if(!this.topic.equals("")) msg.addString(this.topic);
-        if(!this.content.equals("")) msg.addString(this.content);
+        msg.addString(this.topic);
+        msg.addString(this.content);
 
         return msg;
         
@@ -114,6 +110,8 @@ public class Message {
      * @param msg Message in form of ZMsg
      */
     private void decomposeMessage(ZMsg msg) {
+        this.senderID = msg.popString();
+
        String header = msg.popString();
        List<String> elements = Arrays.asList(header.split(" "));
        
@@ -122,8 +120,6 @@ public class Message {
         ? null
         : elements.get(1);
 
-       this.senderID = elements.get(2);
-
        String topic = msg.popString();
        if(topic == null){
            this.topic = "";
@@ -131,19 +127,15 @@ public class Message {
            return;
        }else{
            this.topic = topic;
+
        }
 
-        String content = msg.popString();
-        if(content == null){
-            this.content = "";
-        }else{
-            this.content = topic;
-        }
+        this.content = msg.popString();
+
 
     }
 
     // Getters
-
     public String getTopic() {
         return topic;
     }

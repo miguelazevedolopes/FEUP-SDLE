@@ -7,8 +7,6 @@ import org.zeromq.ZContext;
 
 
 
-
-
 public class SocketOwner {
     private static final int REPLYTIMEOUT = 9500;
 
