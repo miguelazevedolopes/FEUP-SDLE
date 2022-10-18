@@ -24,6 +24,15 @@ public class Publisher {
 
         pubSocket.send(messageString);
         //tratar da mensagem ok do servidor
+        // 0 bloqueia ate receber mensagem ou quando o timeout passar (setReceiveTimeOut(int))
+        // DONTWAIT: Specifies that the operation should be performed in non-blocking mode
+        byte [] reply = pubSocket.recv(0);
+        String reply_string = new String(reply,ZMQ.CHARSET);
+        Message reply_msg = new Message(reply_string);
+
+        System.out.println(reply_string);
+
+
     }
 
 
