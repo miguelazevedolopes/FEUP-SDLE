@@ -1,57 +1,57 @@
 import org.zeromq.ZMsg;
 
-
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * This class represents a message.
- * The message protocol must have two essential fields: type, messageID ,senderID
+ * The message protocol must have two essential fields: type, messageID ,clientID
  * If the message has no ID, the ID field will be sent as "null"
  * <p>
  * Types of message (type - description - fields)
- * SUB - subscribe - cmd, messageID ,senderID, topic
- * UNSUB - unsubscribe - cmd, messageID ,sender_ID, topic
- * PUT - publish - cmd, messageID ,senderID, topic, content
- * GET - get - cmd, messageID ,senderID, topic
- * GET_RESP - get response - cmd, messageID, senderID, topic, content
- * ACK - acknowledge that put was successful - cmd, messageID, senderID
- * ERROR - error - cmd, messageID, senderID, content
+ * SUB - subscribe - messageType, messageID ,clientID, topic
+ * UNSUB - unsubscribe - messageType, messageID ,clientID, topic
+ * PUT - publish - messageType, messageID ,clientID, topic, content
+ * GET - get - messageType, messageID ,clientID, topic
+ * GET_RESP - get response - messageType, messageID, clientID, topic, content
+ * ACK - acknowledge that put was successful - messageType, messageID, clientID
+ * ERROR - error - messageType, messageID, clientID, content
  */
 
-public class Message {
+public class Message implements Serializable{
     private String id = null;
-    private String cmd;
-    private String senderID;
+    private String messageType;
+    private String clientID;
     private String topic = "";
     private String content = "";
 
 
-    public Message(MessageType cmd, String senderID) {
-        this.cmd = cmd.name();
-        this.senderID = senderID;
+    public Message(MessageType messageType, String clientID) {
+        this.messageType = messageType.name();
+        this.clientID = clientID;
     }
 
     /**
      * Constructor
      *
-     * @param cmd      type of Message
-     * @param senderID sender ID
+     * @param messageType      type of Message
+     * @param clientID client ID
      * @param topic    topic of the message
      */
-    public Message( MessageType cmd,String senderID, String topic ) {
-        this.cmd = cmd.name();
-        this.senderID = senderID;
+    public Message( MessageType messageType,String clientID, String topic ) {
+        this.messageType = messageType.name();
+        this.clientID = clientID;
         this.topic = topic;
     }
 
     /**
      * Message constructor with no need of argument
      */
-    public Message(MessageType cmd, String senderID, String topic, String content ) {
-        this.cmd = cmd.name();
-        this.senderID = senderID;
+    public Message(MessageType messageType, String clientID, String topic, String content ) {
+        this.messageType = messageType.name();
+        this.clientID = clientID;
         this.topic = topic;
         this.content = content;
 
@@ -73,12 +73,12 @@ public class Message {
      */
     public ZMsg createMessage() {
 
-        //Creates a string with like "cmd id senderID "
+        //Creates a string with like "messageType id clientID "
 
         ZMsg msg = new ZMsg();
-        msg.addString(this.senderID);
+        msg.addString(this.clientID);
 
-        String header = this.cmd +
+        String header = this.messageType +
                 " " +
                 this.id;
 
@@ -91,13 +91,13 @@ public class Message {
     }
 
     /**
-     * Creates an ID with the date and the senderID
+     * Creates an ID with the date and the clientID
      */
     private void createID(){
         StringBuilder sb = new StringBuilder();
         Timestamp date = new Timestamp(System.currentTimeMillis());
         sb.append(date.getTime());
-        sb.append(this.senderID);
+        sb.append(this.clientID);
         
         this.id = Integer.toString(sb.toString().hashCode());
 
@@ -108,12 +108,12 @@ public class Message {
      * @param msg Message in form of ZMsg
      */
     private void decomposeMessage(ZMsg msg) {
-        this.senderID = msg.popString();
+        this.clientID = msg.popString();
 
        String header = msg.popString();
        List<String> elements = Arrays.asList(header.split(" "));
        
-       this.cmd = elements.get(0);
+       this.messageType = elements.get(0);
        this.id = elements.get(1).equals("null")
         ? null
         : elements.get(1);
@@ -142,23 +142,18 @@ public class Message {
         return content;
     }
 
-    public MessageType getCmd() {
-        return MessageType.valueOf(cmd);
+    public MessageType getMessageType() {
+        return MessageType.valueOf(messageType);
     }
 
-    public String getSenderID() {
-        return senderID;
+    public String getClientID() {
+        return clientID;
     }
 
     public String getID() {
         // criei esta funçao só para nao me dar error warnings
         return this.id;
     }
-
-
-
-
-
 
 
 }

@@ -21,7 +21,7 @@ public class Proxy extends Thread implements Serializable{
 
     Map <String,Topic> topics;
 
-    private Queue <ZMsg> messagesToSend;
+    private Queue <Message> messagesToSend=new LinkedList<>();
 
     final ExecutorService threadPool;
 
@@ -29,18 +29,18 @@ public class Proxy extends Thread implements Serializable{
     Socket socket;
     
     public Proxy(){
-        ctx = new ZContext(); //?
+        ctx = new ZContext();
+        
         socket = ctx.createSocket(SocketType.ROUTER);
 
         socket.bind("tcp://*:" + SOCKET_ACCESS); 
 
         threadPool= Executors.newCachedThreadPool();
 
-        messagesToSend=new LinkedList<>();
     }
 
-    public void addMessageToSendQueue(ZMsg zmsg){
-        messagesToSend.add(zmsg);
+    public synchronized void addMessageToSendQueue(Message msg){
+        messagesToSend.add(msg);
     }
 
     public Map<String, Topic> getTopics() {
@@ -68,6 +68,10 @@ public class Proxy extends Thread implements Serializable{
                     saveStateToFile();
                 }
             }
+            while (!messagesToSend.isEmpty()) {
+                ZMsg messageToSend=messagesToSend.poll().createMessage();
+                messageToSend.send(this.socket);
+            }
         }
     }
 
@@ -83,10 +87,16 @@ public class Proxy extends Thread implements Serializable{
 
     private void saveStateToFile(){
         File myFile = new File(STATE_FILE_PATH);
+        if(myFile.exists()){
+            myFile.delete();
+        }
+        myFile = new File(STATE_FILE_PATH);
         try {
-            FileOutputStream fOutputStream = new FileOutputStream(myFile.getAbsolutePath(),false);
+            FileOutputStream fOutputStream = new FileOutputStream(myFile.getAbsolutePath());
             ObjectOutputStream objOutStream = new ObjectOutputStream(fOutputStream);
-            objOutStream.writeObject(this);
+            for (Message message : messagesToSend) {
+                objOutStream.writeObject(message);
+            }                
         } catch (IOException e) {
             e.printStackTrace();
         }

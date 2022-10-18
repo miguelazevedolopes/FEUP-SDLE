@@ -18,7 +18,7 @@ public class Publisher extends SocketOwner{
         ZMsg reply = ZMsg.recvMsg(socketZMQ);
         Message reply_msg = new Message(reply);
 
-        System.out.println(reply_msg.getCmd().toString());
+        System.out.println(reply_msg.getMessageType().toString());
 
 
     }
