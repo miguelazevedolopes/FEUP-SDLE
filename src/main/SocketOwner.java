@@ -55,7 +55,6 @@ public class SocketOwner {
             System.err.println("Receive timed out. Reconnecting...");
             this.reconnect();
         }
-
         return replyZMsg;
     }
 }

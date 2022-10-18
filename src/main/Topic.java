@@ -45,7 +45,6 @@ public class Topic {
     public synchronized void updateSubscriberNextMessage(String subscriberID){
         String nextMessageID=getNextMessageID(subscriberID);
         subscribers.put(subscriberID,nextMessageID);
-        
     }
 
     public synchronized void subscribe(String subscriberID){
@@ -64,5 +63,5 @@ public class Topic {
                 subscribers.put(entry.getKey(),message.getID());
         }
     }
-    
+
 }
