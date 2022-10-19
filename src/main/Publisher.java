@@ -8,15 +8,11 @@ public class Publisher extends SocketOwner{
         super(ctx,id,SOCKET_ACCESS);
     }
     public void put (String topic, String message){
-        setup();
-        connect();
 
         Message msg = new Message(MessageType.PUT,this.id,topic,message);
-        ZMsg messageString=msg.createMessage();
-        messageString.send(socketZMQ);
-        
+        ZMsg messageString=msg.createMessage();        
 
-        ZMsg reply = ZMsg.recvMsg(socketZMQ);
+        ZMsg reply = sendReceive(messageString);
 
         Message reply_msg = new Message(reply);
 

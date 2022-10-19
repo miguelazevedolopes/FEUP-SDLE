@@ -30,6 +30,9 @@ public class ServiceTest extends TestCase{
         assertEquals(1, proxy.getTopics().get("Music").messages.size());
 
         subscriber.get("Music");
+
+        assertEquals(0, proxy.getTopics().get("Music").messages.size());
+
         proxy.stopProxy();
     }
 

@@ -19,6 +19,7 @@ public class SocketOwner {
         this.zContext = zContext;
         this.socketEndpoint = socketEndpoint;
         this.setup();
+        this.connect();
     }
 
     protected void setup() {
@@ -27,7 +28,7 @@ public class SocketOwner {
         this.socketZMQ.setReceiveTimeOut(SocketOwner.REPLYTIMEOUT);
     }
 
-    public ZMsg sendReceive(ZMsg message) throws Exception {
+    public ZMsg sendReceive(ZMsg message) {
         timeoutCounter = -1;
         ZMsg reply;
         reply = null;

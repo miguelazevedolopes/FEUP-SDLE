@@ -10,14 +10,11 @@ public class Subscriber extends SocketOwner{
     }
 
     public void subscribe(String topic){
-        setup();
-        connect();
+
         Message msg = new Message(MessageType.SUB,this.id,topic);
         ZMsg message=msg.createMessage();
 
-        message.send(socketZMQ);
-
-        ZMsg reply = ZMsg.recvMsg(socketZMQ);
+        ZMsg reply = sendReceive(message) ;
 
         Message reply_msg = new Message(reply);
 
@@ -25,15 +22,13 @@ public class Subscriber extends SocketOwner{
     }
 
     public void unsubscribe(String topic){
-        setup();
-        connect();
+
 
         Message msg = new Message(MessageType.UNSUB,this.id,topic);
         ZMsg message=msg.createMessage();
 
-        message.send(socketZMQ);
+        ZMsg reply = sendReceive(message) ;
 
-        ZMsg reply = ZMsg.recvMsg(socketZMQ);
         Message reply_msg = new Message(reply);
 
         System.out.println(reply_msg.getMessageType().toString());
@@ -45,11 +40,7 @@ public class Subscriber extends SocketOwner{
         Message msg = new Message(MessageType.GET,this.id,topic);
         ZMsg message=msg.createMessage();
 
-        message.send(socketZMQ);
-
-
-        ZMsg reply = ZMsg.recvMsg(socketZMQ);
-
+        ZMsg reply = sendReceive(message) ;
 
         Message reply_msg = new Message(reply);
         if (reply_msg.getMessageType()==MessageType.GET_REP){
