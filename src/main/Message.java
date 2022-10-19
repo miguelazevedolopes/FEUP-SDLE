@@ -1,6 +1,10 @@
+import org.zeromq.ZFrame;
 import org.zeromq.ZMsg;
 
+import zmq.ZMQ;
+
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
@@ -76,9 +80,7 @@ public class Message implements Serializable{
     public ZMsg createMessage() {
 
         //Creates a string with like "messageType id clientID "
-
         ZMsg msg = new ZMsg();
-        msg.addString(this.clientID);
 
         String id = this.id == null ? "null" : this.id;
 
@@ -87,11 +89,17 @@ public class Message implements Serializable{
                 id;
 
         msg.addString(header);
-        msg.addString(this.topic);
-        msg.addString(this.content);
-
+        msg.addString(this.topic == null ? "null" : this.topic);
+        msg.addString(this.content == null ? "null" : this.content);
         return msg;
         
+    }
+
+    public ZMsg createIdentifiedMessage() {
+        //Creates a string with like "messageType id clientID "
+        ZMsg msg = createMessage();
+        msg.wrap(new ZFrame(clientID));
+        return msg;
     }
 
     /**
@@ -104,16 +112,32 @@ public class Message implements Serializable{
         sb.append(this.clientID);
         
 
-        MessageDigest messageDigest;
+        this.id = generateHash(sb.toString());
+        
+    }
+
+    public static String generateHash(String valToHash) {
+        MessageDigest md=null;
         try {
-            messageDigest = MessageDigest.getInstance("SHA-256");
-            messageDigest.update(sb.toString().getBytes());
-            this.id = new String(messageDigest.digest());
+            md = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+        byte[] hash = md.digest(valToHash.getBytes(ZMQ.CHARSET));
+        // Convert byte array into signum representation
+        BigInteger number = new BigInteger(1, hash);
+ 
+        // Convert message digest into hex value
+        StringBuilder hexString = new StringBuilder(number.toString(16));
+ 
+        // Pad with leading zeros
+        while (hexString.length() < 64)
+        {
+            hexString.insert(0, '0');
+        }
+ 
+        return hexString.toString();
     }
 
     /**
@@ -121,28 +145,32 @@ public class Message implements Serializable{
      * @param msg Message in form of ZMsg
      */
     private void decomposeMessage(ZMsg msg) {
-       this.clientID = msg.popString();
+        String firstFrame = msg.popString();
+        String secondFrame = msg.popString();
 
-       String header = msg.popString();
-       List<String> elements = Arrays.asList(header.split(" "));
-       
-       this.messageType = elements.get(0);
-       this.id = elements.get(1).equals("null")
-        ? null
-        : elements.get(1);
+        String topic;
+        if(secondFrame.equals("")){
+            this.clientID=firstFrame;
+            String header = msg.popString();
 
-       String topic = msg.popString();
-       if(topic == null){
-           this.topic = "";
-           this.content = "";
-           return;
-       }else{
-           this.topic = topic.equals("") ? null : topic;
+            List<String> elements = Arrays.asList(header.split(" "));
+            this.messageType = elements.get(0);
+            this.id = elements.get(1).equals("null") ? null : elements.get(1);
+            topic = msg.popString();
+        }
+        else{
+            String header = firstFrame;
 
-       }
+            List<String> elements = Arrays.asList(header.split(" "));
+            this.messageType = elements.get(0);
+            this.id = elements.get(1).equals("null") ? null : elements.get(1);
+            topic = secondFrame;
+        }
+      
+         
+        this.topic = topic.equals("null") ? null : topic;
         String content = msg.popString();
-        this.content = content.equals("") ? null : content;
-        
+        this.content = content.equals("null") ? null : content;
     }
 
     // Getters

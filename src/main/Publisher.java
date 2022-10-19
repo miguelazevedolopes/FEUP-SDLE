@@ -13,10 +13,11 @@ public class Publisher extends SocketOwner{
 
         Message msg = new Message(MessageType.PUT,this.id,topic,message);
         ZMsg messageString=msg.createMessage();
-
         messageString.send(socketZMQ);
+        
 
         ZMsg reply = ZMsg.recvMsg(socketZMQ);
+
         Message reply_msg = new Message(reply);
 
         System.out.println(reply_msg.getMessageType().toString());

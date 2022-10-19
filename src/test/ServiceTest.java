@@ -18,14 +18,22 @@ public class ServiceTest extends TestCase{
     }
 
     @Test
-    public void testSubscribe() throws InterruptedException{
-        System.out.println("Start");
+    public void testSubscribePutGet() throws InterruptedException{
         proxy.start();
-        System.out.println("After 1 sec sleep");
 
         subscriber.subscribe("Music");
+
+        assertEquals(1, proxy.getTopics().size());
+
         publisher.put("Music", "I really love music");
+
+        assertEquals(1, proxy.getTopics().get("Music").messages.size());
+
         subscriber.get("Music");
         proxy.stopProxy();
     }
+
+
+
+
 }

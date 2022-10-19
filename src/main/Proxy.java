@@ -3,6 +3,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -21,7 +22,7 @@ public class Proxy extends Thread implements Serializable{
 
     Map <String,Topic> topics;
 
-    private Queue <Message> messagesToSend=new LinkedList<>();
+    private Queue <Message> messagesToSend;
 
     final ExecutorService threadPool;
 
@@ -31,6 +32,10 @@ public class Proxy extends Thread implements Serializable{
     public Proxy(ZContext ctx){
         this.ctx = ctx;
         
+        messagesToSend=new LinkedList<>();
+
+        topics=new HashMap<>();
+
         socket = ctx.createSocket(SocketType.ROUTER);
 
         if(!socket.bind("tcp://" + SOCKET_ACCESS)){
@@ -38,9 +43,7 @@ public class Proxy extends Thread implements Serializable{
         }
         else System.out.println("Proxy bind success");
 
-        threadPool= Executors.newCachedThreadPool();
-        
-        System.out.println("Proxy initialized");
+        threadPool= Executors.newCachedThreadPool();        
     }
 
     public synchronized void addMessageToSendQueue(Message msg){
@@ -62,19 +65,21 @@ public class Proxy extends Thread implements Serializable{
     private void pollSockets(){
         Poller poller = ctx.createPoller(1);
         poller.register(this.socket, Poller.POLLIN);
-        System.out.println("Started polling");
         while(keepRunning()){
             ZMsg zmsg;
-            if(poller.poll()>=0){
-                System.out.println("Proxy received a message");
+            if(poller.poll(1000)>=0){
                 if(poller.pollin(0)){
+
                     zmsg=ZMsg.recvMsg(this.socket);
+            
+
                     threadPool.execute(new ProxyThread(this,new Message(zmsg)));
                     saveStateToFile();
                 }
             }
+
             while (!messagesToSend.isEmpty()) {
-                ZMsg messageToSend=messagesToSend.poll().createMessage();
+                ZMsg messageToSend=messagesToSend.poll().createIdentifiedMessage();
                 messageToSend.send(this.socket);
             }
         }

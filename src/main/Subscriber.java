@@ -18,6 +18,7 @@ public class Subscriber extends SocketOwner{
         message.send(socketZMQ);
 
         ZMsg reply = ZMsg.recvMsg(socketZMQ);
+
         Message reply_msg = new Message(reply);
 
         System.out.println(reply_msg.getMessageType().toString());
@@ -40,18 +41,19 @@ public class Subscriber extends SocketOwner{
 
 
     public void get(String topic){
-        setup();
-        connect();
 
         Message msg = new Message(MessageType.GET,this.id,topic);
         ZMsg message=msg.createMessage();
 
         message.send(socketZMQ);
 
+
         ZMsg reply = ZMsg.recvMsg(socketZMQ);
+
+
         Message reply_msg = new Message(reply);
         if (reply_msg.getMessageType()==MessageType.GET_REP){
-            String idMsg =reply_msg.getID();
+            String msgTopic =reply_msg.getTopic();
 
             String content = reply_msg.getContent();
             if(content == null)
@@ -61,7 +63,7 @@ public class Subscriber extends SocketOwner{
 
             int tries=0;
             boolean okMsg=false;
-            Message ack_msg = new Message(MessageType.ACK,this.id,idMsg);
+            Message ack_msg = new Message(MessageType.ACK,this.id,msgTopic);
             ack_msg.createMessage().send(socketZMQ);
             while(tries<3 && !okMsg ){
                 

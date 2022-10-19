@@ -61,6 +61,7 @@ public class ProxyThread implements Runnable{
                 }
                 else{
                     topic.updateSubscriberNextMessage(message.getClientID());
+                    topic.removeMessagesWithoutRecipient();
                     ackMessage=new Message(MessageType.ACK,message.getClientID());
                     parent.addMessageToSendQueue(ackMessage);   
                 }

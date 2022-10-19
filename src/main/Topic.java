@@ -1,6 +1,8 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Topic {
@@ -13,7 +15,7 @@ public class Topic {
     /*
      * Maps MessageIDs to the actual message object
      */
-    LinkedHashMap <String,Message> messages;  
+    Map <String,Message> messages;  
 
     public Topic(){
         this.subscribers= new HashMap<>();
@@ -40,6 +42,33 @@ public class Topic {
             }
         }
         return null;
+    }
+
+    public synchronized void removeMessagesWithoutRecipient(){
+        Iterator<Map.Entry<String, Message>> iterator = messages.entrySet().iterator();
+        List <String> messagesToRemove = new ArrayList<>();
+        boolean flag=true;
+
+        while(iterator.hasNext()){
+            Map.Entry<String, Message> entry = iterator.next();
+            String messageID = entry.getKey();
+            for (String mID : subscribers.values()) {
+                if(messageID.equals(mID)){
+                    flag=false;
+                    break;
+                }
+            }
+            if(flag){
+                messagesToRemove.add(messageID);
+            }
+            else{
+                break;
+            }
+        }
+
+        for (String mID : messagesToRemove) {
+            messages.remove(mID);
+        }
     }
 
     public Message getMessage(String subscriberID) {
