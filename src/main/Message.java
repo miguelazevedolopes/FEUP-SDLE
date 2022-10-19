@@ -81,9 +81,11 @@ public class Message {
         ZMsg msg = new ZMsg();
         msg.addString(this.senderID);
 
+        String id = this.id == null ? "null" : this.id;
+
         String header = this.cmd +
                 " " +
-                this.id;
+                id;
 
         msg.addString(header);
         msg.addString(this.topic);
@@ -132,8 +134,7 @@ public class Message {
        }
         String content = msg.popString();
         this.content = content.equals("") ? null : content;
-
-
+        
     }
 
     // Getters
