@@ -80,9 +80,11 @@ public class Message implements Serializable{
         ZMsg msg = new ZMsg();
         msg.addString(this.clientID);
 
+        String id = this.id == null ? "null" : this.id;
+
         String header = this.messageType +
                 " " +
-                this.id;
+                id;
 
         msg.addString(header);
         msg.addString(this.topic);
@@ -140,8 +142,7 @@ public class Message implements Serializable{
        }
         String content = msg.popString();
         this.content = content.equals("") ? null : content;
-
-
+        
     }
 
     // Getters
@@ -154,7 +155,7 @@ public class Message implements Serializable{
     }
 
     public MessageType getMessageType() {
-        return MessageType.valueOf(messageType);
+        return MessageType.valueOf(this.messageType);
     }
 
     public String getClientID() {
