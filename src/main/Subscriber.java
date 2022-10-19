@@ -1,5 +1,3 @@
-import javax.xml.transform.Source;
-
 import org.zeromq.ZContext;
 import org.zeromq.ZMsg;
 
@@ -21,7 +19,7 @@ public class Subscriber extends SocketOwner{
         ZMsg reply = ZMsg.recvMsg(socketZMQ);
         Message reply_msg = new Message(reply);
 
-        System.out.println(reply_msg.getCmd().toString());
+        System.out.println(reply_msg.getMessageType().toString());
     }
 
     public void unsubscribe(String topic){
@@ -36,7 +34,7 @@ public class Subscriber extends SocketOwner{
         ZMsg reply = ZMsg.recvMsg(socketZMQ);
         Message reply_msg = new Message(reply);
 
-        System.out.println(reply_msg.getCmd().toString());
+        System.out.println(reply_msg.getMessageType().toString());
     }
 
 
@@ -51,7 +49,7 @@ public class Subscriber extends SocketOwner{
 
         ZMsg reply = ZMsg.recvMsg(socketZMQ);
         Message reply_msg = new Message(reply);
-        if (reply_msg.getCmd()==MessageType.GET_REP){
+        if (reply_msg.getMessageType()==MessageType.GET_REP){
             String idMsg =reply_msg.getID();
 
             String content = reply_msg.getContent();
@@ -71,14 +69,14 @@ public class Subscriber extends SocketOwner{
 
                 if(replyOk!=null){
                     okMsg=true;
-                    String cmd =msg_Ok.getCmd().toString();
+                    String cmd =msg_Ok.getMessageType().toString();
                     System.out.println(cmd);
                 }
                     
                 tries++;
             }
             
-        }else if(reply_msg.getCmd()==MessageType.ERROR){
+        }else if(reply_msg.getMessageType()==MessageType.ERROR){
             System.out.println("Error!");
         }
 

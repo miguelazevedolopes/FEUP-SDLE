@@ -1,5 +1,3 @@
-import java.nio.charset.StandardCharsets;
-
 import org.zeromq.ZMsg;
 import org.zeromq.SocketType;
 import org.zeromq.ZMQ;
@@ -18,14 +16,14 @@ public class SocketOwner {
 
     public SocketOwner(ZContext zContext, String id, String socketEndpoint) {
         this.id = id;
-        this.setup();
         this.zContext = zContext;
         this.socketEndpoint = socketEndpoint;
+        this.setup();
     }
 
     protected void setup() {
         this.socketZMQ = zContext.createSocket(SocketType.REQ);
-        this.socketZMQ.setIdentity(id.getBytes(StandardCharsets.UTF_8));
+        this.socketZMQ.setIdentity(id.getBytes(ZMQ.CHARSET));
         this.socketZMQ.setReceiveTimeOut(SocketOwner.REPLYTIMEOUT);
     }
 
