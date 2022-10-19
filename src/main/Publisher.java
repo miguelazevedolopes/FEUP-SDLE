@@ -2,9 +2,10 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMsg;
 
 public class Publisher extends SocketOwner{
+    public static final String SOCKET_ACCESS="localhost:5560";
 
-    public Publisher(ZContext ctx,String id, String endpoint){
-        super(ctx,id,endpoint);
+    public Publisher(ZContext ctx,String id){
+        super(ctx,id,SOCKET_ACCESS);
     }
     public void put (String topic, String message){
         setup();

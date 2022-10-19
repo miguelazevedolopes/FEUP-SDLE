@@ -14,7 +14,7 @@ import org.zeromq.ZMQ.Poller;
 import org.zeromq.*;
 
 public class Proxy extends Thread implements Serializable{
-    public final String SOCKET_ACCESS="5555";
+    public final String SOCKET_ACCESS="localhost:5560";
     public final String STATE_FILE_PATH="state";
 
     private boolean keepRunning = true;
@@ -28,15 +28,19 @@ public class Proxy extends Thread implements Serializable{
     ZContext ctx;
     Socket socket;
     
-    public Proxy(){
-        ctx = new ZContext();
+    public Proxy(ZContext ctx){
+        this.ctx = ctx;
         
         socket = ctx.createSocket(SocketType.ROUTER);
 
-        socket.bind("tcp://*:" + SOCKET_ACCESS); 
+        if(!socket.bind("tcp://" + SOCKET_ACCESS)){
+            System.out.println("Error on proxy bind");
+        }
+        else System.out.println("Proxy bind success");
 
         threadPool= Executors.newCachedThreadPool();
-
+        
+        System.out.println("Proxy initialized");
     }
 
     public synchronized void addMessageToSendQueue(Message msg){
@@ -58,10 +62,11 @@ public class Proxy extends Thread implements Serializable{
     private void pollSockets(){
         Poller poller = ctx.createPoller(1);
         poller.register(this.socket, Poller.POLLIN);
-
+        System.out.println("Started polling");
         while(keepRunning()){
             ZMsg zmsg;
             if(poller.poll()>=0){
+                System.out.println("Proxy received a message");
                 if(poller.pollin(0)){
                     zmsg=ZMsg.recvMsg(this.socket);
                     threadPool.execute(new ProxyThread(this,new Message(zmsg)));
@@ -75,7 +80,8 @@ public class Proxy extends Thread implements Serializable{
         }
     }
 
-    public void start(){
+    @Override
+    public void run(){
         pollSockets();
     }
 

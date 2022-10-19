@@ -1,3 +1,4 @@
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -13,6 +14,11 @@ public class Topic {
      * Maps MessageIDs to the actual message object
      */
     LinkedHashMap <String,Message> messages;  
+
+    public Topic(){
+        this.subscribers= new HashMap<>();
+        this.messages = new LinkedHashMap<>();
+    }
 
     private boolean hasMessages(String subscriberID){
         return subscribers.get(subscriberID)!=null;

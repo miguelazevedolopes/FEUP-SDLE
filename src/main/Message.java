@@ -1,6 +1,8 @@
 import org.zeromq.ZMsg;
 
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
@@ -99,8 +101,17 @@ public class Message implements Serializable{
         sb.append(date.getTime());
         sb.append(this.clientID);
         
-        this.id = Integer.toString(sb.toString().hashCode());
 
+        MessageDigest messageDigest;
+        try {
+            messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(sb.toString().getBytes());
+            this.id = new String(messageDigest.digest());
+        } catch (NoSuchAlgorithmException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
     }
 
     /**
@@ -108,7 +119,7 @@ public class Message implements Serializable{
      * @param msg Message in form of ZMsg
      */
     private void decomposeMessage(ZMsg msg) {
-        this.clientID = msg.popString();
+       this.clientID = msg.popString();
 
        String header = msg.popString();
        List<String> elements = Arrays.asList(header.split(" "));
@@ -151,7 +162,6 @@ public class Message implements Serializable{
     }
 
     public String getID() {
-        // criei esta funçao só para nao me dar error warnings
-        return this.id;
+        return id;
     }
 }

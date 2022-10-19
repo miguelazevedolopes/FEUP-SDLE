@@ -48,7 +48,7 @@ public class SocketOwner {
     }
 
     public boolean connect() {
-        return this.socketZMQ.connect(this.socketEndpoint);
+        return this.socketZMQ.connect("tcp://" +this.socketEndpoint);
     }
 
     public ZMsg receiveMessage() {

@@ -3,9 +3,10 @@ import org.zeromq.ZMsg;
 
 
 public class Subscriber extends SocketOwner{
+    public static final String SOCKET_ACCESS="localhost:5560";
 
-    public Subscriber(ZContext ctx,String id, String endpoint){
-         super(ctx,id,endpoint);
+    public Subscriber(ZContext ctx,String id){
+        super(ctx,id,SOCKET_ACCESS);
     }
 
     public void subscribe(String topic){
