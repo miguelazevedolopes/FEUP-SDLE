@@ -15,19 +15,38 @@ public class Main {
         proxy.start();
     }
 
-    public static void put(String topic, String message) {
+    public static void put(String topic, String message, String id) {
+        ZContext zContext = new ZContext();
         Publisher publisher;
-        publisher = new Publisher(zContext, "PUBLISHER_ID");
+        publisher = new Publisher(zContext, id);
         publisher.put(topic, message);
+        //System.out.printf("%s: I Published an update to topic >%s< with >%s< ",id, topic, message);
+        System.exit(0);
+    }
+
+    public static  void get(String topic, String id) {
+        ZContext zContext = new ZContext();
+        Subscriber subscriber = new Subscriber(zContext, id);
+        subscriber.get(topic);
+        //System.out.printf("%s: Successfully performed a Get from topic >%s<", id, topic);
         publisher.closeSocket();
         System.exit(0);
     }
 
-    public static  void get(String topic) {
-        Subscriber subscriber = new Subscriber(zContext, "SUBSCRIBER_ID");
+    public static void subscribe(String topic, String id) {
+        ZContext zContext = new ZContext();
+        Subscriber subscriber = new Subscriber(zContext, id);
         subscriber.subscribe(topic);
-        subscriber.get(topic);
-        subscriber.closeSocket();
+        //System.out.printf("%s: Successfully subscribed to topic >%s<", id, topic);
+        subscriber.subscribe(topic);
+        System.exit(0);
+    }
+
+    public static void unsubscribe(String topic, String id) {
+        ZContext zContext = new ZContext();
+        Subscriber subscriber = new Subscriber(zContext, id);
+        subscriber.unsubscribe(topic);
+        //System.out.printf("%s: Successfully unsubscribed from topic >%s<", id, topic);
         System.exit(0);
     }
 
@@ -42,6 +61,13 @@ public class Main {
                 proxy();
                 return;
             case "Put":
+                if(args.length < 4) {
+                    incorrectArgs();
+                    return;
+                }
+                put(args[1], args[2], args[3]);
+                return;
+            case "Get":
                 if(args.length < 3) {
                     incorrectArgs();
                     return;
@@ -49,12 +75,19 @@ public class Main {
                 put(args[1], args[2]);
                 System.exit(0);
                 return;
-            case "Get":
-                if(args.length < 2) {
+            case "Subscribe":
+                if(args.length < 3) {
                     incorrectArgs();
                     return;
                 }
-                get(args[1]);
+                subscribe(args[1], args[2]);
+                return;
+            case "Unsubscribe":
+                if(args.length < 3) {
+                    incorrectArgs();
+                    return;
+                }
+                unsubscribe(args[1], args[2]);
                 return;
             default:
                 incorrectArgs();
