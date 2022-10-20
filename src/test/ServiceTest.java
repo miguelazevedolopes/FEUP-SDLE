@@ -36,6 +36,21 @@ public class ServiceTest extends TestCase{
         proxy.stopProxy();
     }
 
+    @Test
+    public void testUnsubscribeGet(){
+        proxy.start();
+
+        publisher.put("Music", "I really love music");
+
+        assertEquals(1, proxy.getTopics().get("Music").messages.size());
+
+        subscriber.get("Music");
+
+        assertEquals(1, proxy.getTopics().get("Music").messages.size());
+
+        proxy.stopProxy();
+    }
+
 
 
 

@@ -11,13 +11,11 @@ public class Main {
         ZContext zContext = new ZContext();
         Proxy proxy = new Proxy(zContext);
         proxy.start();
+        
     }
 
     public static void put(String topic, String message) {
         ZContext zContext = new ZContext();
-        Proxy proxy = new Proxy(zContext);
-        proxy.start();
-
         Publisher publisher;
         publisher = new Publisher(zContext, "PUBLISHER_ID");
         publisher.put(topic, message);

@@ -14,7 +14,7 @@ public class ProxyThread implements Runnable{
             case PUT:
                 topic = parent.topics.get(message.getTopic());
                 if(topic==null){
-                    parent.newTopic(message.getTopic());
+                    topic=parent.newTopic(message.getTopic());
                 }
                 topic.publish(message);
                 Message ackMessage=new Message(MessageType.ACK,message.getClientID());
@@ -27,7 +27,14 @@ public class ProxyThread implements Runnable{
                     parent.addMessageToSendQueue(errorMsg);
                 }
                 else{
-                    String messageContent= topic.getMessage(message.getClientID()).getContent();
+                    Message retrievedMessage =topic.getMessage(message.getClientID());
+                    if(retrievedMessage==null){
+                        Message errorMsg=new Message(MessageType.ERROR,message.getClientID(),message.getTopic(), "You are not subscribed to that topic");
+                        parent.addMessageToSendQueue(errorMsg);
+                        return;
+                    }
+                    String messageContent= retrievedMessage.getContent();
+
                     Message getResponse = new Message(MessageType.GET_REP,message.getClientID(),message.getTopic(),messageContent);
                     parent.addMessageToSendQueue(getResponse);
                 }
