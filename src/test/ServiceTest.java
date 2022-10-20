@@ -23,11 +23,13 @@ public class ServiceTest{
 
     @After
     public void cleanUp() throws InterruptedException{
-        File stateFile = new File("state");
-        if(stateFile.exists()) stateFile.delete();
         proxy.stopProxy();
         publisher.closeSocket();
         subscriber.closeSocket();
+        File stateFile = new File("state");
+        if(stateFile.exists()){
+            stateFile.delete();
+        } 
     }
 
     @Test
@@ -45,7 +47,6 @@ public class ServiceTest{
         subscriber.get("Music");
 
         assertEquals(0, proxy.getTopics().get("Music").messages.size());
-
     }
 
     @Test
@@ -54,6 +55,7 @@ public class ServiceTest{
 
         publisher.put("Music", "I really love music");
 
+        // Como não há nenhum subscriber a mensagem nem é guardada, adicionar um subscriber adicional para isto dar certo
         assertEquals(1, proxy.getTopics().get("Music").messages.size());
 
         subscriber.get("Music");

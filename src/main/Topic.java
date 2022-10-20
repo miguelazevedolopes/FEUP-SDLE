@@ -96,6 +96,7 @@ public class Topic implements Serializable{
     }
 
     public synchronized void publish(Message message){
+        if(subscribers.isEmpty()) return;
         if(!messages.containsKey(message.getID()))
             messages.put(message.getID(), message);
         for (Map.Entry<String,String> entry : subscribers.entrySet()){
