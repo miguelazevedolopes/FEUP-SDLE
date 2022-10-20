@@ -15,6 +15,10 @@ public class Publisher extends SocketOwner{
         ZMsg reply;
         try {
             reply = sendReceive(messageString);
+            if(reply==null){
+                System.out.println("Failed trying to communicate with server. Gave up.");
+                return;
+            }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

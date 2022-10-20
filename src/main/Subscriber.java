@@ -17,6 +17,10 @@ public class Subscriber extends SocketOwner{
         ZMsg reply;
         try {
             reply = sendReceive(message);
+            if(reply==null){
+                System.out.println("Failed trying to communicate with server. Gave up.");
+                return;
+            }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -38,6 +42,10 @@ public class Subscriber extends SocketOwner{
         ZMsg reply;
         try {
             reply = sendReceive(message);
+            if(reply==null){
+                System.out.println("Failed trying to communicate with server. Gave up.");
+                return;
+            }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -58,6 +66,10 @@ public class Subscriber extends SocketOwner{
         ZMsg reply;
         try {
             reply = sendReceive(message);
+            if(reply==null){
+                System.out.println("Failed trying to communicate with server. Gave up.");
+                return;
+            }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

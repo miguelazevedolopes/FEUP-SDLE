@@ -44,7 +44,7 @@ public class SocketOwner {
     }
 
     public void disconnect_reconnect() {
-
+        this.socketZMQ.disconnect("tcp://" +this.socketEndpoint);
         this.socketZMQ.close();
         this.setup();
         this.connect();
@@ -57,8 +57,8 @@ public class SocketOwner {
     public ZMsg receiveMessage() throws Exception {
         ZMsg replyZMsg = ZMsg.recvMsg(this.socketZMQ);
         if (replyZMsg == null) {
-            System.out.println("Got time out so I'll reconnect");
-            this.disconnect_reconnect();
+            System.out.println("Timeout: Sending message again");
+            //this.disconnect_reconnect();
         }
         return replyZMsg;
     }
