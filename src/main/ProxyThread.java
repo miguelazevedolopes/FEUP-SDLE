@@ -28,7 +28,7 @@ public class ProxyThread implements Runnable{
                 }
                 else{
                     if(!topic.isSubscribed(message.getClientID())){
-                        Message errorMsg=new Message(MessageType.GET_REP,message.getClientID(),message.getTopic(), "You are not subscribed to that topic");
+                        Message errorMsg=new Message(MessageType.ERROR,message.getClientID(),message.getTopic(), "You are not subscribed to that topic");
                         parent.addMessageToSendQueue(errorMsg);
                         return;
                     }
