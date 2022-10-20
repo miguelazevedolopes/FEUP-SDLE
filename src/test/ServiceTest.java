@@ -7,11 +7,11 @@ public class ServiceTest extends TestCase{
     Proxy proxy;
     Publisher publisher;
     Subscriber subscriber;
+    ZContext zContext;
     
     @Override
     public void setUp(){
-        
-        ZContext zContext = new ZContext();
+        zContext = new ZContext();
         proxy = new Proxy(zContext);
         publisher = new Publisher(zContext, "PUBLISHER_ID");
         subscriber = new Subscriber(zContext, "SUBSCRIBER_ID");
@@ -51,7 +51,31 @@ public class ServiceTest extends TestCase{
         proxy.stopProxy();
     }
 
+    @Test
+    public void testSaveAndRestoreStateToFile(){
+        proxy.start();
 
+        publisher.put("Music", "I really love music");
 
+        assertEquals(1, proxy.getTopics().get("Music").messages.size());
+
+        proxy.stopProxy();
+
+        try {
+            proxy.join();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        proxy = new Proxy(zContext);
+
+        proxy.start();
+
+        assertEquals(1, proxy.getTopics().get("Music").messages.size());
+
+        proxy.stopProxy();
+
+    }
 
 }

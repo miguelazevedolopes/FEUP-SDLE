@@ -1,8 +1,10 @@
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -14,7 +16,7 @@ import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQ.Poller;
 import org.zeromq.*;
 
-public class Proxy extends Thread implements Serializable{
+public class Proxy extends Thread{
     public final String SOCKET_ACCESS="localhost:5560";
     public final String STATE_FILE_PATH="state";
 
@@ -31,10 +33,12 @@ public class Proxy extends Thread implements Serializable{
     
     public Proxy(ZContext ctx){
         this.ctx = ctx;
-        
-        messagesToSend=new LinkedList<>();
 
-        topics=new HashMap<>();
+        if(!restoreStateFromFile()){
+            messagesToSend=new LinkedList<>();
+            topics=new HashMap<>();
+            System.out.println("Deu erro a dar load");
+        }
 
         socket = ctx.createSocket(SocketType.ROUTER);
 
@@ -83,11 +87,14 @@ public class Proxy extends Thread implements Serializable{
                 messageToSend.send(this.socket);
             }
         }
+        saveStateToFile();
     }
 
     @Override
     public void run(){
         pollSockets();
+        socket.disconnect("tcp://" + SOCKET_ACCESS);
+        socket.close();
     }
 
     public synchronized Topic newTopic(String topicName){
@@ -96,21 +103,47 @@ public class Proxy extends Thread implements Serializable{
         return topic;
     }
 
-    private void saveStateToFile(){
+    private synchronized void saveStateToFile(){
         File myFile = new File(STATE_FILE_PATH);
         if(myFile.exists()){
             myFile.delete();
         }
-        myFile = new File(STATE_FILE_PATH);
         try {
+            myFile.createNewFile();
             FileOutputStream fOutputStream = new FileOutputStream(myFile.getAbsolutePath());
             ObjectOutputStream objOutStream = new ObjectOutputStream(fOutputStream);
-            for (Message message : messagesToSend) {
-                objOutStream.writeObject(message);
-            }                
+            objOutStream.writeObject(this.topics);
+                          
         } catch (IOException e) {
             e.printStackTrace();
         }
-   }
+    }
+
+    private boolean restoreStateFromFile(){
+        File myFile = new File(STATE_FILE_PATH);
+        Map<String,Topic> savedState;
+        if(!myFile.exists()){
+            return false;
+        }
+        try {
+            FileInputStream fInputStream = new FileInputStream(myFile.getAbsolutePath());
+            ObjectInputStream objectInputStream = new ObjectInputStream(fInputStream);
+            savedState = (HashMap<String,Topic>) objectInputStream.readObject();
+            this.topics=savedState;
+            return true;
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
 
 }
