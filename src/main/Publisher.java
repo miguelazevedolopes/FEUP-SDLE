@@ -18,8 +18,5 @@ public class Publisher extends SocketOwner{
 
         System.out.println(reply_msg.getMessageType().toString());
 
-
     }
-
-
 }

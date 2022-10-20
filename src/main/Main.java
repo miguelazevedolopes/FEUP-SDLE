@@ -20,6 +20,7 @@ public class Main {
         publisher = new Publisher(zContext, "PUBLISHER_ID");
         publisher.put(topic, message);
         System.out.printf("I Published an update to topic >%s< with >%s< ", topic, message);
+        System.exit(0);
     }
 
     public static  void get(String topic) {
@@ -28,7 +29,7 @@ public class Main {
         subscriber.subscribe(topic);
         subscriber.get(topic);
         System.out.printf("Successfully performed a Get from topic >%s<", topic);
-
+        System.exit(0);
     }
 
     public static void main(String[] args) {
