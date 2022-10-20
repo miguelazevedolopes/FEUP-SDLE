@@ -1,20 +1,33 @@
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.zeromq.ZContext;
 
-import junit.framework.TestCase;
-
-public class ServiceTest extends TestCase{
+public class ServiceTest{
     Proxy proxy;
     Publisher publisher;
     Subscriber subscriber;
     ZContext zContext;
     
-    @Override
-    public void setUp(){
+    @Before
+    public void setUp() {        
         zContext = new ZContext();
         proxy = new Proxy(zContext);
         publisher = new Publisher(zContext, "PUBLISHER_ID");
         subscriber = new Subscriber(zContext, "SUBSCRIBER_ID");
+    }
+
+    @After
+    public void cleanUp() throws InterruptedException{
+        File stateFile = new File("state");
+        if(stateFile.exists()) stateFile.delete();
+        proxy.stopProxy();
+        publisher.closeSocket();
+        subscriber.closeSocket();
     }
 
     @Test
@@ -33,11 +46,10 @@ public class ServiceTest extends TestCase{
 
         assertEquals(0, proxy.getTopics().get("Music").messages.size());
 
-        proxy.stopProxy();
     }
 
     @Test
-    public void testUnsubscribeGet(){
+    public void testGetWithoutSubscription(){
         proxy.start();
 
         publisher.put("Music", "I really love music");
@@ -48,7 +60,18 @@ public class ServiceTest extends TestCase{
 
         assertEquals(1, proxy.getTopics().get("Music").messages.size());
 
-        proxy.stopProxy();
+    }
+
+    @Test
+    public void testGetWithoutMessages(){
+        proxy.start();
+
+        subscriber.subscribe("Music");
+
+        assertEquals(1, proxy.getTopics().size());
+
+        subscriber.get("Music");
+
     }
 
     @Test
@@ -74,7 +97,6 @@ public class ServiceTest extends TestCase{
 
         assertEquals(1, proxy.getTopics().get("Music").messages.size());
 
-        proxy.stopProxy();
 
     }
 

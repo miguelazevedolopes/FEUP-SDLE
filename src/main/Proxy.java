@@ -37,7 +37,6 @@ public class Proxy extends Thread{
         if(!restoreStateFromFile()){
             messagesToSend=new LinkedList<>();
             topics=new HashMap<>();
-            System.out.println("Deu erro a dar load");
         }
 
         socket = ctx.createSocket(SocketType.ROUTER);

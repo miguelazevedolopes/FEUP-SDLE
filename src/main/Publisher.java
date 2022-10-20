@@ -12,7 +12,14 @@ public class Publisher extends SocketOwner{
         Message msg = new Message(MessageType.PUT,this.id,topic,message);
         ZMsg messageString=msg.createMessage();        
 
-        ZMsg reply = sendReceive(messageString);
+        ZMsg reply;
+        try {
+            reply = sendReceive(messageString);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+        }
 
         Message reply_msg = new Message(reply);
 

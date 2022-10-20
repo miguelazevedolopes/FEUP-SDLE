@@ -2,33 +2,32 @@ import org.zeromq.ZContext;
 
 public class Main {
 
+    static ZContext zContext = new ZContext();
+
     public static int incorrectArgs() {
         System.out.println("Incorrect argument usage");
         return 1;
     }
 
     public static void proxy() {
-        ZContext zContext = new ZContext();
+        
         Proxy proxy = new Proxy(zContext);
         proxy.start();
-        
     }
 
     public static void put(String topic, String message) {
-        ZContext zContext = new ZContext();
         Publisher publisher;
         publisher = new Publisher(zContext, "PUBLISHER_ID");
         publisher.put(topic, message);
-        System.out.printf("I Published an update to topic >%s< with >%s< ", topic, message);
+        publisher.closeSocket();
         System.exit(0);
     }
 
     public static  void get(String topic) {
-        ZContext zContext = new ZContext();
         Subscriber subscriber = new Subscriber(zContext, "SUBSCRIBER_ID");
         subscriber.subscribe(topic);
         subscriber.get(topic);
-        System.out.printf("Successfully performed a Get from topic >%s<", topic);
+        subscriber.closeSocket();
         System.exit(0);
     }
 
@@ -48,6 +47,7 @@ public class Main {
                     return;
                 }
                 put(args[1], args[2]);
+                System.exit(0);
                 return;
             case "Get":
                 if(args.length < 2) {
@@ -61,5 +61,4 @@ public class Main {
                 break;
         }
     }
-
 }

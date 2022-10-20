@@ -27,6 +27,10 @@ public class Topic implements Serializable{
         return subscribers.get(subscriberID)!=null;
     }
 
+    public boolean isSubscribed(String subscriberID){
+        return subscribers.keySet().contains(subscriberID);
+    }
+
     private String getNextMessageID(String messageID){
 
         Iterator<Map.Entry<String, Message>> iterator = messages.entrySet().iterator();

@@ -14,7 +14,15 @@ public class Subscriber extends SocketOwner{
         Message msg = new Message(MessageType.SUB,this.id,topic);
         ZMsg message=msg.createMessage();
 
-        ZMsg reply = sendReceive(message) ;
+        ZMsg reply;
+        try {
+            reply = sendReceive(message);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+        }
+    
 
         Message reply_msg = new Message(reply);
 
@@ -27,7 +35,14 @@ public class Subscriber extends SocketOwner{
         Message msg = new Message(MessageType.UNSUB,this.id,topic);
         ZMsg message=msg.createMessage();
 
-        ZMsg reply = sendReceive(message) ;
+        ZMsg reply;
+        try {
+            reply = sendReceive(message);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+        }
 
         Message reply_msg = new Message(reply);
 
@@ -40,7 +55,14 @@ public class Subscriber extends SocketOwner{
         Message msg = new Message(MessageType.GET,this.id,topic);
         ZMsg message=msg.createMessage();
 
-        ZMsg reply = sendReceive(message) ;
+        ZMsg reply;
+        try {
+            reply = sendReceive(message);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+        }
 
         Message reply_msg = new Message(reply);
         if (reply_msg.getMessageType()==MessageType.GET_REP){
