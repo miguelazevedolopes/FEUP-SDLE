@@ -21,6 +21,7 @@ public class Main {
         publisher = new Publisher(zContext, id);
         publisher.put(topic, message);
         //System.out.printf("%s: I Published an update to topic >%s< with >%s< ",id, topic, message);
+        publisher.closeSocket();
         System.exit(0);
     }
 
@@ -29,7 +30,7 @@ public class Main {
         Subscriber subscriber = new Subscriber(zContext, id);
         subscriber.get(topic);
         //System.out.printf("%s: Successfully performed a Get from topic >%s<", id, topic);
-        publisher.closeSocket();
+        subscriber.closeSocket();
         System.exit(0);
     }
 
@@ -39,6 +40,7 @@ public class Main {
         subscriber.subscribe(topic);
         //System.out.printf("%s: Successfully subscribed to topic >%s<", id, topic);
         subscriber.subscribe(topic);
+        subscriber.closeSocket();
         System.exit(0);
     }
 
@@ -47,6 +49,7 @@ public class Main {
         Subscriber subscriber = new Subscriber(zContext, id);
         subscriber.unsubscribe(topic);
         //System.out.printf("%s: Successfully unsubscribed from topic >%s<", id, topic);
+        subscriber.closeSocket();
         System.exit(0);
     }
 
@@ -72,7 +75,7 @@ public class Main {
                     incorrectArgs();
                     return;
                 }
-                put(args[1], args[2]);
+                get(args[1], args[2]);
                 System.exit(0);
                 return;
             case "Subscribe":
