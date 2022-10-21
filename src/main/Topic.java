@@ -31,8 +31,9 @@ public class Topic implements Serializable{
         return subscribers.keySet().contains(subscriberID);
     }
 
-    private String getNextMessageID(String messageID){
+    private String getNextMessageID(String clientID){
 
+        String messageID = subscribers.get(clientID);
         Iterator<Map.Entry<String, Message>> iterator = messages.entrySet().iterator();
 
         while (iterator.hasNext()) {
@@ -93,6 +94,7 @@ public class Topic implements Serializable{
 
     public synchronized void unsubscribe(String subscriberID){
         subscribers.remove(subscriberID);
+        removeMessagesWithoutRecipient();
     }
 
     public synchronized void publish(Message message){

@@ -18,7 +18,7 @@ public class Subscriber extends SocketOwner{
         try {
             reply = sendReceive(message);
             if(reply==null){
-                System.out.println("Failed trying to communicate with server. Gave up.");
+                System.out.println(this.id+": " + "Failed trying to communicate with server. Gave up.");
                 return;
             }
         } catch (Exception e) {
@@ -30,7 +30,7 @@ public class Subscriber extends SocketOwner{
 
         Message reply_msg = new Message(reply);
 
-        System.out.println(reply_msg.getMessageType().toString());
+        System.out.println(this.id+": " + reply_msg.getMessageType().toString());
     }
 
     public void unsubscribe(String topic){
@@ -43,7 +43,7 @@ public class Subscriber extends SocketOwner{
         try {
             reply = sendReceive(message);
             if(reply==null){
-                System.out.println("Failed trying to communicate with server. Gave up.");
+                System.out.println(this.id+": " + "Failed trying to communicate with server. Gave up.");
                 return;
             }
         } catch (Exception e) {
@@ -54,7 +54,12 @@ public class Subscriber extends SocketOwner{
 
         Message reply_msg = new Message(reply);
 
-        System.out.println(reply_msg.getMessageType().toString());
+        if(reply_msg.getMessageType()==MessageType.ERROR){
+            System.out.println(this.id+": " + reply_msg.getContent());
+        }
+        else System.out.println(this.id+": " + reply_msg.getMessageType().toString());
+
+
     }
 
 
@@ -67,7 +72,7 @@ public class Subscriber extends SocketOwner{
         try {
             reply = sendReceive(message);
             if(reply==null){
-                System.out.println("Failed trying to communicate with server. Gave up.");
+                System.out.println(this.id+": " + "Failed trying to communicate with server. Gave up.");
                 return;
             }
         } catch (Exception e) {
@@ -82,9 +87,9 @@ public class Subscriber extends SocketOwner{
 
             String content = reply_msg.getContent();
             if(content == null)
-                System.out.println("No new messages!");
+                System.out.println(this.id+": " + "No new messages!");
             else
-                System.out.println(content);
+                System.out.println(this.id+": " + content);
 
 
             Message ackMsg = new Message(MessageType.ACK,this.id,msgTopic);
@@ -93,7 +98,7 @@ public class Subscriber extends SocketOwner{
             try {
                 replyOk = sendReceive(ackMsg.createMessage());
                 if(replyOk==null){
-                    System.out.println("Failed trying to communicate with server. Gave up.");
+                    System.out.println(this.id+": " + "Failed trying to communicate with server. Gave up.");
                     return;
                 }
             } catch (Exception e) {
@@ -104,11 +109,11 @@ public class Subscriber extends SocketOwner{
 
             Message msg_Ok= new Message(replyOk);
             String cmd =msg_Ok.getMessageType().toString();
-            System.out.println(cmd);
+            System.out.println(this.id+": " + cmd);
                     
             
         }else if(reply_msg.getMessageType()==MessageType.ERROR){
-            System.out.println(reply_msg.getContent());
+            System.out.println(this.id+": " + reply_msg.getContent());
         }
 
     }

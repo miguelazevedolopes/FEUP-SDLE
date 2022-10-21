@@ -12,6 +12,7 @@ public class ProxyThread implements Runnable{
         Topic topic;
         switch(message.getMessageType()){
             case PUT:
+                System.out.println("PROXY: Receive a "+message.getMessageType().toString() +" from "+message.getClientID());
                 topic = parent.topics.get(message.getTopic());
                 if(topic==null){
                     topic=parent.newTopic(message.getTopic());
@@ -21,6 +22,8 @@ public class ProxyThread implements Runnable{
                 parent.addMessageToSendQueue(ackMessage);
                 break;
             case GET:
+                System.out.println("PROXY: Receive a "+message.getMessageType().toString() +" from "+message.getClientID());
+
                 topic = parent.topics.get(message.getTopic());
                 if(topic==null){
                     Message errorMsg=new Message(MessageType.ERROR,message.getClientID(),message.getTopic(), "No topic with that name");
@@ -45,6 +48,7 @@ public class ProxyThread implements Runnable{
                 }
                 break;
             case SUB:
+                System.out.println("PROXY: Receive a "+message.getMessageType().toString() +" from "+message.getClientID());
                 topic = parent.topics.get(message.getTopic());
                 if(topic==null){
                     topic = parent.newTopic(message.getTopic());
@@ -54,6 +58,7 @@ public class ProxyThread implements Runnable{
                 parent.addMessageToSendQueue(ackMessage);     
                 break;
             case UNSUB:
+                System.out.println("PROXY: Receive a "+message.getMessageType().toString() +" from "+message.getClientID());
                 topic = parent.topics.get(message.getTopic());
                 if(topic==null){
                     Message errorMsg=new Message(MessageType.ERROR,message.getClientID(),message.getTopic(), "No topic with that name");
@@ -66,6 +71,7 @@ public class ProxyThread implements Runnable{
                 }
                 break;
             case ACK:
+                System.out.println("PROXY: Receive a "+message.getMessageType().toString() +" from "+message.getClientID());
                 topic = parent.topics.get(message.getTopic());
                 if(topic==null){
                     Message errorMsg=new Message(MessageType.ERROR,message.getClientID(),message.getTopic(), "No topic with that name");
@@ -79,6 +85,7 @@ public class ProxyThread implements Runnable{
                 }
                 break;
             default:
+                System.out.println("weird");
                 // Se isto acontecer é porque algo correu muito mal, ignora e envia msg de erro
                 break;
         }

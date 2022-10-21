@@ -16,7 +16,7 @@ public class Publisher extends SocketOwner{
         try {
             reply = sendReceive(messageString);
             if(reply==null){
-                System.out.println("Failed trying to communicate with server. Gave up.");
+                System.out.println(this.id+": " + "Failed trying to communicate with server. Gave up.");
                 return;
             }
         } catch (Exception e) {
@@ -27,7 +27,7 @@ public class Publisher extends SocketOwner{
 
         Message reply_msg = new Message(reply);
 
-        System.out.println(reply_msg.getMessageType().toString());
+        System.out.println(this.id+": " + reply_msg.getMessageType().toString());
 
     }
 }

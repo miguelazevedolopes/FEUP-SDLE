@@ -40,7 +40,7 @@ public class Proxy extends Thread{
         }
 
         socket = ctx.createSocket(SocketType.ROUTER);
-
+        socket.setSendTimeOut(0);
         if(!socket.bind("tcp://" + SOCKET_ACCESS)){
             System.out.println("Error on proxy bind");
         }
@@ -74,7 +74,6 @@ public class Proxy extends Thread{
                 if(poller.pollin(0)){
 
                     zmsg=ZMsg.recvMsg(this.socket);
-            
 
                     threadPool.execute(new ProxyThread(this,new Message(zmsg)));
                     saveStateToFile();

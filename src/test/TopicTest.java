@@ -1,11 +1,13 @@
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Before;
 import org.junit.Test;
 
-import junit.framework.TestCase;
 
-public class TopicTest extends TestCase{
+public class TopicTest{
     Topic topic;
 
-    @Override
+    @Before
     public void setUp(){
         topic=new Topic();
     }
@@ -13,6 +15,8 @@ public class TopicTest extends TestCase{
     @Test
     public void testPublish(){
         Message dummyMessage = new Message(MessageType.PUT, "TEST_ID","TEST_TOPIC","TEST_CONTENT");
+
+        topic.subscribe("SUBSCRIBER_ID1");
 
         topic.publish(dummyMessage);
 

@@ -1,8 +1,11 @@
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 import org.zeromq.ZMsg;
 
-public class MessageTest extends TestCase {
+public class MessageTest {
 
+    @Test
     public void testCreateAndDecomposeMessage() {
         //Test 1 - Create a message with a topic and read it to ensure it is correct
         Message message = new Message(MessageType.PUT,"id","topic","content");
