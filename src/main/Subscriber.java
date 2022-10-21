@@ -86,26 +86,29 @@ public class Subscriber extends SocketOwner{
             else
                 System.out.println(content);
 
-            int tries=0;
-            boolean okMsg=false;
-            Message ack_msg = new Message(MessageType.ACK,this.id,msgTopic);
-            ack_msg.createMessage().send(socketZMQ);
-            while(tries<3 && !okMsg ){
-                
-                ZMsg replyOk = ZMsg.recvMsg(socketZMQ);
-                Message msg_Ok= new Message(replyOk);
 
-                if(replyOk!=null){
-                    okMsg=true;
-                    String cmd =msg_Ok.getMessageType().toString();
-                    System.out.println(cmd);
+            Message ackMsg = new Message(MessageType.ACK,this.id,msgTopic);
+                
+            ZMsg replyOk;
+            try {
+                replyOk = sendReceive(ackMsg.createMessage());
+                if(replyOk==null){
+                    System.out.println("Failed trying to communicate with server. Gave up.");
+                    return;
                 }
-                    
-                tries++;
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return;
             }
+
+            Message msg_Ok= new Message(replyOk);
+            String cmd =msg_Ok.getMessageType().toString();
+            System.out.println(cmd);
+                    
             
         }else if(reply_msg.getMessageType()==MessageType.ERROR){
-            System.out.println("Error!");
+            System.out.println(reply_msg.getContent());
         }
 
     }

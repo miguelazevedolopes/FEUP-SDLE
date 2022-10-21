@@ -10,7 +10,7 @@ import org.zeromq.ZContext;
 public class ServiceTest{
     Proxy proxy;
     Publisher publisher;
-    Subscriber subscriber;
+    Subscriber subscriber1,subscriber2;
     ZContext zContext;
     
     @Before
@@ -18,14 +18,15 @@ public class ServiceTest{
         zContext = new ZContext();
         proxy = new Proxy(zContext);
         publisher = new Publisher(zContext, "PUBLISHER_ID");
-        subscriber = new Subscriber(zContext, "SUBSCRIBER_ID");
+        subscriber1 = new Subscriber(zContext, "SUBSCRIBER_ID_1");
+        subscriber2 = new Subscriber(zContext, "SUBSCRIBER_ID_2");
     }
 
     @After
     public void cleanUp() throws InterruptedException{
         proxy.stopProxy();
         publisher.closeSocket();
-        subscriber.closeSocket();
+        subscriber1.closeSocket();
         File stateFile = new File("state");
         if(stateFile.exists()){
             stateFile.delete();
@@ -36,7 +37,7 @@ public class ServiceTest{
     public void testSubscribePutGet() throws InterruptedException{
         proxy.start();
 
-        subscriber.subscribe("Music");
+        subscriber1.subscribe("Music");
 
         assertEquals(1, proxy.getTopics().size());
 
@@ -44,7 +45,7 @@ public class ServiceTest{
 
         assertEquals(1, proxy.getTopics().get("Music").messages.size());
 
-        subscriber.get("Music");
+        subscriber1.get("Music");
 
         assertEquals(0, proxy.getTopics().get("Music").messages.size());
     }
@@ -53,12 +54,14 @@ public class ServiceTest{
     public void testGetWithoutSubscription(){
         proxy.start();
 
-        publisher.put("Music", "I really love music");
+        subscriber1.subscribe("Music");
 
+        publisher.put("Music", "I really love music");
+    
         // Como não há nenhum subscriber a mensagem nem é guardada, adicionar um subscriber adicional para isto dar certo
         assertEquals(1, proxy.getTopics().get("Music").messages.size());
 
-        subscriber.get("Music");
+        subscriber2.get("Music");
 
         assertEquals(1, proxy.getTopics().get("Music").messages.size());
 
@@ -68,17 +71,19 @@ public class ServiceTest{
     public void testGetWithoutMessages(){
         proxy.start();
 
-        subscriber.subscribe("Music");
+        subscriber1.subscribe("Music");
 
         assertEquals(1, proxy.getTopics().size());
 
-        subscriber.get("Music");
+        subscriber1.get("Music");
 
     }
 
     @Test
     public void testSaveAndRestoreStateToFile(){
         proxy.start();
+
+        subscriber1.subscribe("Music");
 
         publisher.put("Music", "I really love music");
 

@@ -34,7 +34,7 @@ public class ProxyThread implements Runnable{
                     }
                     Message retrievedMessage =topic.getMessage(message.getClientID());
                     if(retrievedMessage==null){
-                        Message errorMsg=new Message(MessageType.GET_REP,message.getClientID(),message.getTopic(), "No new messages in this topic");
+                        Message errorMsg=new Message(MessageType.GET_REP,message.getClientID(),message.getTopic(), null);
                         parent.addMessageToSendQueue(errorMsg);
                         return;
                     }
