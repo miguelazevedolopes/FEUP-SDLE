@@ -178,6 +178,19 @@ public class ServiceTest{
 
         subscriber1.unsubscribe("Music");
 
+        assertEquals(0, proxy.getTopics().size());
+
+    }
+
+    @Test
+    public void testSubscribeNonExistentTopic(){
+
+        proxy.start();
+
+        subscriber1.subscribe("Music");
+
+        assertEquals(1, proxy.getTopics().size());
+
     }
 
     @Test
