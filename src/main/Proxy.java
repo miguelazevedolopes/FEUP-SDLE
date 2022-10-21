@@ -112,6 +112,9 @@ public class Proxy extends Thread{
             FileOutputStream fOutputStream = new FileOutputStream(myFile.getAbsolutePath());
             ObjectOutputStream objOutStream = new ObjectOutputStream(fOutputStream);
             objOutStream.writeObject(this.topics);
+            objOutStream.close();
+            fOutputStream.close();
+
                           
         } catch (IOException e) {
             e.printStackTrace();
@@ -128,6 +131,9 @@ public class Proxy extends Thread{
             FileInputStream fInputStream = new FileInputStream(myFile.getAbsolutePath());
             ObjectInputStream objectInputStream = new ObjectInputStream(fInputStream);
             savedState = (HashMap<String,Topic>) objectInputStream.readObject();
+            fInputStream.close();
+            objectInputStream.close();
+            
             this.topics=savedState;
             return true;
         } catch (FileNotFoundException e) {

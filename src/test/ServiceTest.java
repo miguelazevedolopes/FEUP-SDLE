@@ -56,11 +56,12 @@ public class ServiceTest{
         publisher.put("Music", "I really love music");
 
         // Como não há nenhum subscriber a mensagem nem é guardada, adicionar um subscriber adicional para isto dar certo
-        assertEquals(1, proxy.getTopics().get("Music").messages.size());
+        assertEquals(0, proxy.getTopics().get("Music").messages.size());
 
+        publisher.put("Music", "I really love music");
         subscriber.get("Music");
 
-        assertEquals(1, proxy.getTopics().get("Music").messages.size());
+        assertEquals(0, proxy.getTopics().get("Music").messages.size());
 
     }
 
