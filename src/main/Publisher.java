@@ -1,7 +1,7 @@
 import org.zeromq.ZContext;
 import org.zeromq.ZMsg;
 
-public class Publisher extends SocketOwner{
+public class Publisher extends Client{
     public static final String SOCKET_ACCESS="localhost:5560";
 
     public Publisher(ZContext ctx,String id){

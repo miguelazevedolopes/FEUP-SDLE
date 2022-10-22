@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.zeromq.ZContext;
 
 public class ServiceTest{
-    Proxy proxy;
+    Server server;
     Publisher publisher1,publisher2;
     Subscriber subscriber1,subscriber2;
     ZContext zContext;
@@ -20,7 +20,7 @@ public class ServiceTest{
             stateFile.delete();
         } 
         zContext = new ZContext();
-        proxy = new Proxy(zContext);
+        server = new Server(zContext);
         publisher1 = new Publisher(zContext, "PUBLISHER_ID_1");
         publisher2 = new Publisher(zContext, "PUBLISHER_ID_2");
         subscriber1 = new Subscriber(zContext, "SUBSCRIBER_ID_1");
@@ -29,10 +29,10 @@ public class ServiceTest{
 
     @After
     public void cleanUp() throws InterruptedException{
-        proxy.stopProxy();
+        server.stopServer();
         publisher1.closeSocket();
         subscriber1.closeSocket();
-        while(proxy.isAlive());
+        while(server.isAlive());
         File stateFile = new File("state");
         if(stateFile.exists()){
             stateFile.delete();
@@ -41,44 +41,44 @@ public class ServiceTest{
 
     @Test
     public void testSubscribePutGet() throws InterruptedException{
-        proxy.start();
+        server.start();
 
         subscriber1.subscribe("Music");
 
-        assertEquals(1, proxy.getTopics().size());
+        assertEquals(1, server.getTopics().size());
 
         publisher1.put("Music", "I really love music");
 
-        assertEquals(1, proxy.getTopics().get("Music").messages.size());
+        assertEquals(1, server.getTopics().get("Music").messages.size());
 
         subscriber1.get("Music");
 
-        assertEquals(0, proxy.getTopics().get("Music").messages.size());
+        assertEquals(0, server.getTopics().get("Music").messages.size());
     }
 
     @Test
     public void testGetWithoutSubscription(){
-        proxy.start();
+        server.start();
 
         subscriber1.subscribe("Music");
 
         publisher1.put("Music", "I really love music");
     
-        assertEquals(1, proxy.getTopics().get("Music").messages.size());
+        assertEquals(1, server.getTopics().get("Music").messages.size());
 
         subscriber2.get("Music");
 
-        assertEquals(1, proxy.getTopics().get("Music").messages.size());
+        assertEquals(1, server.getTopics().get("Music").messages.size());
 
     }
 
     @Test
     public void testGetWithoutMessages(){
-        proxy.start();
+        server.start();
 
         subscriber1.subscribe("Music");
 
-        assertEquals(1, proxy.getTopics().size());
+        assertEquals(1, server.getTopics().size());
 
         subscriber1.get("Music");
 
@@ -86,81 +86,81 @@ public class ServiceTest{
 
     @Test
     public void testSaveAndRestoreStateToFile(){
-        proxy.start();
+        server.start();
 
         subscriber1.subscribe("Music");
 
         publisher1.put("Music", "I really love music");
 
-        assertEquals(1, proxy.getTopics().get("Music").messages.size());
+        assertEquals(1, server.getTopics().get("Music").messages.size());
 
-        proxy.stopProxy();
+        server.stopServer();
 
         try {
-            proxy.join();
+            server.join();
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
-        proxy = new Proxy(zContext);
+        server = new Server(zContext);
 
-        proxy.start();
+        server.start();
 
-        assertEquals(1, proxy.getTopics().get("Music").messages.size());
+        assertEquals(1, server.getTopics().get("Music").messages.size());
 
     }
 
     @Test
     public void testGetAfterUnsubscribe(){
-        proxy.start();
+        server.start();
 
         subscriber1.subscribe("Music");
 
-        assertEquals(1, proxy.getTopics().size());
+        assertEquals(1, server.getTopics().size());
 
         publisher1.put("Music", "I really love music");
 
-        assertEquals(1, proxy.getTopics().get("Music").messages.size());
+        assertEquals(1, server.getTopics().get("Music").messages.size());
 
         subscriber1.unsubscribe("Music");
 
         subscriber1.get("Music");
 
-        assertEquals(0, proxy.getTopics().get("Music").messages.size());
+        assertEquals(0, server.getTopics().get("Music").messages.size());
     }
 
     @Test
     public void testDoubleSubscribe(){
 
-        proxy.start();
+        server.start();
 
         subscriber1.subscribe("Music");
 
         subscriber1.subscribe("Music");
 
-        assertEquals(1, proxy.getTopics().get("Music").subscribers.size());
+        assertEquals(1, server.getTopics().get("Music").subscribers.size());
     }
 
     @Test
     public void testUnsubscribe(){
 
-        proxy.start();
+        server.start();
 
         subscriber1.subscribe("Music");
 
-        assertEquals(1, proxy.getTopics().get("Music").subscribers.size());
+        assertEquals(1, server.getTopics().get("Music").subscribers.size());
 
 
         subscriber1.unsubscribe("Music");
 
-        assertEquals(0, proxy.getTopics().get("Music").subscribers.size());
+        assertEquals(0, server.getTopics().get("Music").subscribers.size());
     }
 
     @Test
     public void testDoubleUnsubscribe(){
 
-        proxy.start();
+        server.start();
 
         subscriber1.subscribe("Music");
 
@@ -168,106 +168,106 @@ public class ServiceTest{
         subscriber1.unsubscribe("Music");
 
 
-        assertEquals(0, proxy.getTopics().get("Music").subscribers.size());
+        assertEquals(0, server.getTopics().get("Music").subscribers.size());
     }
 
     @Test
     public void testUnsubscribeNonExistentTopic(){
 
-        proxy.start();
+        server.start();
 
         subscriber1.unsubscribe("Music");
 
-        assertEquals(0, proxy.getTopics().size());
+        assertEquals(0, server.getTopics().size());
 
     }
 
     @Test
     public void testSubscribeNonExistentTopic(){
 
-        proxy.start();
+        server.start();
 
         subscriber1.subscribe("Music");
 
-        assertEquals(1, proxy.getTopics().size());
+        assertEquals(1, server.getTopics().size());
 
     }
 
     @Test
     public void testRealisticScenario(){
-        proxy.start();
+        server.start();
 
         subscriber1.subscribe("Music");
         subscriber2.subscribe("Music");
 
-        assertEquals(1, proxy.getTopics().size());
+        assertEquals(1, server.getTopics().size());
 
         subscriber1.subscribe("Football");
 
-        assertEquals(2, proxy.getTopics().size());
+        assertEquals(2, server.getTopics().size());
 
         publisher1.put("Music", "I really love music");
         publisher1.put("Music", "I also love the beach");
 
         subscriber1.get("Music");
 
-        assertEquals(2, proxy.getTopics().get("Music").messages.size());
+        assertEquals(2, server.getTopics().get("Music").messages.size());
 
         publisher2.put("Music", "I hate music");
 
         subscriber1.get("Music");
         subscriber1.get("Music");
 
-        assertEquals(3, proxy.getTopics().get("Music").messages.size());
+        assertEquals(3, server.getTopics().get("Music").messages.size());
 
         subscriber2.get("Music");
         subscriber2.get("Music");
         subscriber2.get("Music");
 
-        assertEquals(0, proxy.getTopics().get("Music").messages.size());
+        assertEquals(0, server.getTopics().get("Music").messages.size());
     }
 
     @Test
-    public void testProxyInterruptions(){
-        proxy.start();
+    public void testServerInterruptions(){
+        server.start();
 
         subscriber1.subscribe("Music");
         subscriber2.subscribe("Music");
 
-        assertEquals(1, proxy.getTopics().size());
+        assertEquals(1, server.getTopics().size());
 
         subscriber1.subscribe("Football");
 
-        assertEquals(2, proxy.getTopics().size());
+        assertEquals(2, server.getTopics().size());
 
         publisher1.put("Music", "I really love music");
 
-        proxy.stopProxy();
+        server.stopServer();
 
         publisher1.put("Music", "I also love the beach");
 
-        while(proxy.isAlive());
+        while(server.isAlive());
 
-        proxy = new Proxy(zContext);
+        server = new Server(zContext);
 
-        proxy.start();
+        server.start();
+
+        assertEquals(2, server.getTopics().get("Music").messages.size());
 
         subscriber1.get("Music");
-
-        assertEquals(2, proxy.getTopics().get("Music").messages.size());
 
         publisher2.put("Music", "I hate music");
 
         subscriber1.get("Music");
         subscriber1.get("Music");
 
-        assertEquals(3, proxy.getTopics().get("Music").messages.size());
+        assertEquals(3, server.getTopics().get("Music").messages.size());
 
         subscriber2.get("Music");
         subscriber2.get("Music");
         subscriber2.get("Music");
 
-        assertEquals(0, proxy.getTopics().get("Music").messages.size());
+        assertEquals(0, server.getTopics().get("Music").messages.size());
     }
 
 }

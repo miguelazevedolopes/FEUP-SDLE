@@ -9,9 +9,9 @@ public class Main {
         return 1;
     }
 
-    public static void proxy() {
-        Proxy proxy = new Proxy(zContext);
-        proxy.start();
+    public static void server() {
+        Server server = new Server(zContext);
+        server.start();
     }
 
     public static void put(String topic, String message, String id) {
@@ -58,8 +58,8 @@ public class Main {
         }
 
         switch (args[0]) {
-            case "Proxy":
-                proxy();
+            case "Server":
+                server();
                 return;
             case "Put":
                 if(args.length < 4) {

@@ -5,7 +5,7 @@ import org.zeromq.ZContext;
 
 
 
-public class SocketOwner {
+public abstract class Client {
     private static final int REPLYTIMEOUT = 5000;
 
     protected ZMQ.Socket socketZMQ;
@@ -13,7 +13,7 @@ public class SocketOwner {
     protected String socketEndpoint;
     protected ZContext zContext;
 
-    public SocketOwner(ZContext zContext, String id, String socketEndpoint) {
+    public Client(ZContext zContext, String id, String socketEndpoint) {
         this.id = id;
         this.zContext = zContext;
         this.socketEndpoint = socketEndpoint;

@@ -17,7 +17,7 @@ import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQ.Poller;
 import org.zeromq.*;
 
-public class Proxy extends Thread{
+public class Server extends Thread{
     public final String SOCKET_ACCESS="localhost:5560";
     public final String STATE_FILE_PATH="state";
 
@@ -32,7 +32,7 @@ public class Proxy extends Thread{
     ZContext ctx;
     Socket socket;
     
-    public Proxy(ZContext ctx){
+    public Server(ZContext ctx){
         this.ctx = ctx;
 
         if(!restoreStateFromFile()){
@@ -43,9 +43,9 @@ public class Proxy extends Thread{
         socket = ctx.createSocket(SocketType.ROUTER);
         socket.setSendTimeOut(0);
         if(!socket.bind("tcp://" + SOCKET_ACCESS)){
-            System.out.println("PROXY: Bind error");
+            System.out.println("SERVER: Bind error");
         }
-        else System.out.println("PROXY: Bind success");
+        else System.out.println("SERVER: Bind success");
 
         threadPool= Executors.newCachedThreadPool();        
     }
@@ -58,7 +58,7 @@ public class Proxy extends Thread{
         return topics;
     }
 
-    public synchronized void stopProxy(){
+    public synchronized void stopServer(){
         keepRunning=false;
     }
 
@@ -76,7 +76,7 @@ public class Proxy extends Thread{
 
                     zmsg=ZMsg.recvMsg(this.socket);
 
-                    threadPool.execute(new ProxyThread(this,new Message(zmsg)));
+                    threadPool.execute(new ServerThread(this,new Message(zmsg)));
                 }
             }
             while (!messagesToSend.isEmpty()) {
@@ -89,7 +89,7 @@ public class Proxy extends Thread{
         try {
             threadPool.awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            System.out.println("PROXY: Couldn't close gracefully, threads are still running");
+            System.out.println("SERVER: Couldn't close gracefully, threads are still running");
         }
         while (!messagesToSend.isEmpty()) {
             ZMsg messageToSend=messagesToSend.poll().createIdentifiedMessage();
@@ -103,7 +103,7 @@ public class Proxy extends Thread{
         pollSockets();
         socket.disconnect("tcp://" + SOCKET_ACCESS);
         socket.close();
-        System.out.println("PROXY: Closed");
+        System.out.println("SERVER: Closed");
     }
 
     public synchronized Topic newTopic(String topicName){
