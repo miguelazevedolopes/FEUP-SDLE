@@ -6,5 +6,5 @@ Group members:
 
 1. Miguel Lopes (up201704590@fe.up.pt)
 2. Luís Viegas (up201904979@fe.up.pt)
-3. &lt;first name&gt; &lt;family name&gt; (&lt;email address&gt;)
+3. Mariana Monteiro (up202003480@fe.up.pt)
 4. &lt;first name&gt; &lt;family name&gt; (&lt;email address&gt;)
