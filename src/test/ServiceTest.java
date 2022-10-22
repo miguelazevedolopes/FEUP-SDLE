@@ -32,6 +32,7 @@ public class ServiceTest{
         proxy.stopProxy();
         publisher1.closeSocket();
         subscriber1.closeSocket();
+        while(proxy.isAlive());
         File stateFile = new File("state");
         if(stateFile.exists()){
             stateFile.delete();
@@ -63,12 +64,11 @@ public class ServiceTest{
 
         publisher1.put("Music", "I really love music");
     
-        // Como não há nenhum subscriber a mensagem nem é guardada, adicionar um subscriber adicional para isto dar certo
-        assertEquals(0, proxy.getTopics().get("Music").messages.size());
+        assertEquals(1, proxy.getTopics().get("Music").messages.size());
 
         subscriber2.get("Music");
 
-        assertEquals(0, proxy.getTopics().get("Music").messages.size());
+        assertEquals(1, proxy.getTopics().get("Music").messages.size());
 
     }
 
