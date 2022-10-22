@@ -23,7 +23,6 @@ public class SocketOwner {
         while(!this.connect()&&connectionTries<4){
             try {
                 Thread.sleep(1000);
-                System.out.println("pqp");
                 connectionTries++;
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
@@ -38,40 +37,42 @@ public class SocketOwner {
         this.socketZMQ.setReceiveTimeOut(REPLYTIMEOUT);
         this.socketZMQ.setSendTimeOut(REPLYTIMEOUT);
         this.socketZMQ.setReqRelaxed(true);
-        this.socketZMQ.setLinger(0);
+        //this.socketZMQ.setLinger(0);
     }
 
-    public ZMsg sendReceive(ZMsg message) throws Exception{
+    public ZMsg sendReceive(ZMsg message){
         int tries = 0;
         ZMsg reply;
         reply = null;
 
         while (reply == null && tries<4) {
             while (!message.send(this.socketZMQ)){
-                Thread.sleep(1000);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 System.out.println(this.id+": "+"Couldn't send message, trying again in 1 sec");
             };
             reply = this.receiveMessage();
+            if(reply==null) System.out.println(this.id+": "+"Timeout, sending message again");
             tries++;
         }
         return reply;
-    }
-
-    public void disconnect_reconnect() {
-        //this.socketZMQ.close();
-        setup();
-        connect();
     }
 
     public boolean connect() {
         return this.socketZMQ.connect("tcp://" +this.socketEndpoint);
     }
 
-    public ZMsg receiveMessage() throws Exception {
-        ZMsg replyZMsg = ZMsg.recvMsg(this.socketZMQ);
-        if (replyZMsg == null) {
-            System.out.println(this.id+": "+"Timeout, sending message again");
-            disconnect_reconnect();
+    public ZMsg receiveMessage(){
+        ZMsg replyZMsg = null;
+        try {
+            replyZMsg=ZMsg.recvMsg(this.socketZMQ);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            //e.printStackTrace();
         }
         return replyZMsg;
     }

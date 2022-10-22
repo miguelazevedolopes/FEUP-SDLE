@@ -227,6 +227,47 @@ public class ServiceTest{
         assertEquals(0, proxy.getTopics().get("Music").messages.size());
     }
 
+    @Test
+    public void testProxyInterruptions(){
+        proxy.start();
 
+        subscriber1.subscribe("Music");
+        subscriber2.subscribe("Music");
+
+        assertEquals(1, proxy.getTopics().size());
+
+        subscriber1.subscribe("Football");
+
+        assertEquals(2, proxy.getTopics().size());
+
+        publisher1.put("Music", "I really love music");
+
+        proxy.stopProxy();
+
+        publisher1.put("Music", "I also love the beach");
+
+        while(proxy.isAlive());
+
+        proxy = new Proxy(zContext);
+
+        proxy.start();
+
+        subscriber1.get("Music");
+
+        assertEquals(2, proxy.getTopics().get("Music").messages.size());
+
+        publisher2.put("Music", "I hate music");
+
+        subscriber1.get("Music");
+        subscriber1.get("Music");
+
+        assertEquals(3, proxy.getTopics().get("Music").messages.size());
+
+        subscriber2.get("Music");
+        subscriber2.get("Music");
+        subscriber2.get("Music");
+
+        assertEquals(0, proxy.getTopics().get("Music").messages.size());
+    }
 
 }

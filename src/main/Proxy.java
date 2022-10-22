@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQ.Poller;
@@ -35,16 +36,16 @@ public class Proxy extends Thread{
         this.ctx = ctx;
 
         if(!restoreStateFromFile()){
-            messagesToSend=new LinkedList<>();
             topics=new HashMap<>();
         }
+        messagesToSend=new LinkedList<>();
 
         socket = ctx.createSocket(SocketType.ROUTER);
         socket.setSendTimeOut(0);
         if(!socket.bind("tcp://" + SOCKET_ACCESS)){
-            System.out.println("Error on proxy bind");
+            System.out.println("PROXY: Bind error");
         }
-        else System.out.println("Proxy bind success");
+        else System.out.println("PROXY: Bind success");
 
         threadPool= Executors.newCachedThreadPool();        
     }
@@ -76,14 +77,23 @@ public class Proxy extends Thread{
                     zmsg=ZMsg.recvMsg(this.socket);
 
                     threadPool.execute(new ProxyThread(this,new Message(zmsg)));
-                    saveStateToFile();
                 }
             }
-
             while (!messagesToSend.isEmpty()) {
                 ZMsg messageToSend=messagesToSend.poll().createIdentifiedMessage();
                 messageToSend.send(this.socket);
+                saveStateToFile();
             }
+            
+        }
+        try {
+            threadPool.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            System.out.println("PROXY: Couldn't close gracefully, threads are still running");
+        }
+        while (!messagesToSend.isEmpty()) {
+            ZMsg messageToSend=messagesToSend.poll().createIdentifiedMessage();
+            messageToSend.send(this.socket);
         }
         saveStateToFile();
     }
@@ -93,6 +103,7 @@ public class Proxy extends Thread{
         pollSockets();
         socket.disconnect("tcp://" + SOCKET_ACCESS);
         socket.close();
+        System.out.println("PROXY: Closed");
     }
 
     public synchronized Topic newTopic(String topicName){
@@ -112,9 +123,7 @@ public class Proxy extends Thread{
             ObjectOutputStream objOutStream = new ObjectOutputStream(fOutputStream);
             objOutStream.writeObject(this.topics);
             objOutStream.close();
-            fOutputStream.close();
-
-                          
+            fOutputStream.close();                          
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -123,7 +132,8 @@ public class Proxy extends Thread{
     private boolean restoreStateFromFile(){
         File myFile = new File(STATE_FILE_PATH);
         Map<String,Topic> savedState;
-        if(!myFile.exists()){
+        if(!(myFile.isFile()&& myFile.canRead())){
+            System.out.println("No file with name state found or can't read it");
             return false;
         }
         try {

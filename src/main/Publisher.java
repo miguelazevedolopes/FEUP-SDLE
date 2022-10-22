@@ -12,16 +12,11 @@ public class Publisher extends SocketOwner{
         Message msg = new Message(MessageType.PUT,this.id,topic,message);
         ZMsg messageString=msg.createMessage();        
 
-        ZMsg reply;
-        try {
-            reply = sendReceive(messageString);
-            if(reply==null){
-                System.out.println(this.id+": " + "Failed trying to communicate with server. Gave up.");
-                return;
-            }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        
+
+        ZMsg reply= sendReceive(messageString);
+        if(reply==null){
+            System.out.println(this.id+": " + "Failed trying to communicate with server. Gave up.");
             return;
         }
 
