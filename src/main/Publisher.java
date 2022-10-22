@@ -10,11 +10,8 @@ public class Publisher extends Client{
     public void put (String topic, String message){
 
         Message msg = new Message(MessageType.PUT,this.id,topic,message);
-        ZMsg messageString=msg.createMessage();        
 
-        
-
-        ZMsg reply= sendReceive(messageString);
+        ZMsg reply= sendReceive(msg);
         if(reply==null){
             System.out.println(this.id+": " + "Failed trying to communicate with server. Gave up.");
             return;

@@ -12,11 +12,10 @@ public class Subscriber extends Client{
     public void subscribe(String topic){
 
         Message msg = new Message(MessageType.SUB,this.id,topic);
-        ZMsg message=msg.createMessage();
 
         ZMsg reply;
         try {
-            reply = sendReceive(message);
+            reply = sendReceive(msg);
             if(reply==null){
                 System.out.println(this.id+": " + "Failed trying to communicate with server. Gave up.");
                 return;
@@ -35,13 +34,12 @@ public class Subscriber extends Client{
 
     public void unsubscribe(String topic){
 
-
         Message msg = new Message(MessageType.UNSUB,this.id,topic);
-        ZMsg message=msg.createMessage();
+
 
         ZMsg reply;
         try {
-            reply = sendReceive(message);
+            reply = sendReceive(msg);
             if(reply==null){
                 System.out.println(this.id+": " + "Failed trying to communicate with server. Gave up.");
                 return;
@@ -59,18 +57,16 @@ public class Subscriber extends Client{
         }
         else System.out.println(this.id+": " + reply_msg.getMessageType().toString());
 
-
     }
 
 
     public void get(String topic){
 
         Message msg = new Message(MessageType.GET,this.id,topic);
-        ZMsg message=msg.createMessage();
 
         ZMsg reply;
         try {
-            reply = sendReceive(message);
+            reply = sendReceive(msg);
             if(reply==null){
                 System.out.println(this.id+": " + "Failed trying to communicate with server. Gave up.");
                 return;
@@ -96,7 +92,7 @@ public class Subscriber extends Client{
                 
             ZMsg replyOk;
             try {
-                replyOk = sendReceive(ackMsg.createMessage());
+                replyOk = sendReceive(ackMsg);
                 if(replyOk==null){
                     System.out.println(this.id+": " + "Failed trying to communicate with server. Gave up.");
                     return;

@@ -18,7 +18,7 @@ import org.zeromq.ZMQ.Poller;
 import org.zeromq.*;
 
 public class Server extends Thread{
-    public final String SOCKET_ACCESS="localhost:5560";
+    public final String SOCKET_ACCESS="*:5560";
     public final String STATE_FILE_PATH="state";
 
     private boolean keepRunning = true;
@@ -71,25 +71,26 @@ public class Server extends Thread{
         poller.register(this.socket, Poller.POLLIN);
         while(keepRunning()){
             ZMsg zmsg;
-            if(poller.poll(1000)>=0){
-                if(poller.pollin(0)){
+            poller.poll(50);
 
-                    zmsg=ZMsg.recvMsg(this.socket);
-
-                    threadPool.execute(new ServerThread(this,new Message(zmsg)));
-                }
+            if(poller.pollin(0)){
+                zmsg=ZMsg.recvMsg(this.socket,ZMQ.DONTWAIT);
+                threadPool.execute(new ServerThread(this,new Message(zmsg)));
             }
             while (!messagesToSend.isEmpty()) {
-                ZMsg messageToSend=messagesToSend.poll().createIdentifiedMessage();
-                messageToSend.send(this.socket);
+                Message messageToSend =messagesToSend.poll();
+                System.out.println("SERVER: " + "Sending a " + messageToSend.getMessageType().toString() + " to " + messageToSend.getClientID());
+                ZMsg zMessageToSend=messageToSend.createIdentifiedMessage();
+                zMessageToSend.send(this.socket);
                 saveStateToFile();
             }
             
         }
+        threadPool.shutdown();
         try {
-            threadPool.awaitTermination(5, TimeUnit.SECONDS);
+            if(!threadPool.awaitTermination(10, TimeUnit.SECONDS)) threadPool.shutdownNow();
         } catch (InterruptedException e) {
-            System.out.println("SERVER: Couldn't close gracefully, threads are still running");
+            threadPool.shutdownNow();
         }
         while (!messagesToSend.isEmpty()) {
             ZMsg messageToSend=messagesToSend.poll().createIdentifiedMessage();
@@ -101,7 +102,6 @@ public class Server extends Thread{
     @Override
     public void run(){
         pollSockets();
-        socket.disconnect("tcp://" + SOCKET_ACCESS);
         socket.close();
         System.out.println("SERVER: Closed");
     }

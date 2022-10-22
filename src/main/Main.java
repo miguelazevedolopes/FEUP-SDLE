@@ -10,7 +10,14 @@ public class Main {
     }
 
     public static void server() {
-        Server server = new Server(zContext);
+        final Server server = new Server(zContext);
+        Thread shutdownListener = new Thread(){
+            public void run(){
+                server.stopServer();
+                while(server.isAlive());
+            }
+        };
+        Runtime.getRuntime().addShutdownHook(shutdownListener);
         server.start();
     }
 
@@ -18,16 +25,13 @@ public class Main {
         Publisher publisher;
         publisher = new Publisher(zContext, id);
         publisher.put(topic, message);
-        //System.out.printf("%s: I Published an update to topic >%s< with >%s< ",id, topic, message);
         publisher.closeSocket();
         System.exit(0);
-
     }
 
     public static  void get(String topic, String id) {
         Subscriber subscriber = new Subscriber(zContext, id);
         subscriber.get(topic);
-        //System.out.printf("%s: Successfully performed a Get from topic >%s<", id, topic);
         subscriber.closeSocket();
         System.exit(0);
 
@@ -35,8 +39,6 @@ public class Main {
 
     public static void subscribe(String topic, String id) {
         Subscriber subscriber = new Subscriber(zContext, id);
-        subscriber.subscribe(topic);
-        //System.out.printf("%s: Successfully subscribed to topic >%s<", id, topic);
         subscriber.subscribe(topic);
         subscriber.closeSocket();
         System.exit(0);
@@ -46,7 +48,6 @@ public class Main {
     public static void unsubscribe(String topic, String id) {
             Subscriber subscriber = new Subscriber(zContext, id);
         subscriber.unsubscribe(topic);
-        //System.out.printf("%s: Successfully unsubscribed from topic >%s<", id, topic);
         subscriber.closeSocket();
         System.exit(0);
     }

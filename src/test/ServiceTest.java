@@ -17,14 +17,13 @@ public class ServiceTest{
     public void setUp() {        
         File stateFile = new File("state");
         if(stateFile.exists()){
-            stateFile.delete();
+            while(!stateFile.delete());
         } 
-        zContext = new ZContext();
-        server = new Server(zContext);
-        publisher1 = new Publisher(zContext, "PUBLISHER_ID_1");
-        publisher2 = new Publisher(zContext, "PUBLISHER_ID_2");
-        subscriber1 = new Subscriber(zContext, "SUBSCRIBER_ID_1");
-        subscriber2 = new Subscriber(zContext, "SUBSCRIBER_ID_2");
+        server = new Server(new ZContext());
+        publisher1 = new Publisher(new ZContext(), "PUBLISHER_ID_1");
+        publisher2 = new Publisher(new ZContext(), "PUBLISHER_ID_2");
+        subscriber1 = new Subscriber(new ZContext(), "SUBSCRIBER_ID_1");
+        subscriber2 = new Subscriber(new ZContext(), "SUBSCRIBER_ID_2");
     }
 
     @After
@@ -35,8 +34,8 @@ public class ServiceTest{
         while(server.isAlive());
         File stateFile = new File("state");
         if(stateFile.exists()){
-            stateFile.delete();
-        } 
+            while(!stateFile.delete());
+        }     
     }
 
     @Test
@@ -103,7 +102,7 @@ public class ServiceTest{
             e.printStackTrace();
         }
 
-        server = new Server(zContext);
+        server = new Server(new ZContext());
 
         server.start();
 
@@ -248,7 +247,7 @@ public class ServiceTest{
 
         while(server.isAlive());
 
-        server = new Server(zContext);
+        server = new Server(new ZContext());
 
         server.start();
 
@@ -257,6 +256,7 @@ public class ServiceTest{
         subscriber1.get("Music");
 
         publisher2.put("Music", "I hate music");
+
 
         subscriber1.get("Music");
         subscriber1.get("Music");
