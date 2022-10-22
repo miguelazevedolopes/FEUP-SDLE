@@ -13,6 +13,7 @@ public class ServiceTest{
     Subscriber subscriber1,subscriber2;
     ZContext zContext;
     
+    
     @Before
     public void setUp() {        
         File stateFile = new File("state");
@@ -30,7 +31,9 @@ public class ServiceTest{
     public void cleanUp() throws InterruptedException{
         server.stopServer();
         publisher1.closeSocket();
+        publisher2.closeSocket();
         subscriber1.closeSocket();
+        subscriber2.closeSocket();
         while(server.isAlive());
         File stateFile = new File("state");
         if(stateFile.exists()){

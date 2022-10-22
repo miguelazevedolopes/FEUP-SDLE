@@ -1,6 +1,4 @@
 import org.zeromq.ZMsg;
-import org.zeromq.ZMQ.PollItem;
-import org.zeromq.ZMQ.Poller;
 import org.zeromq.SocketType;
 import org.zeromq.ZMQ;
 import org.zeromq.ZContext;

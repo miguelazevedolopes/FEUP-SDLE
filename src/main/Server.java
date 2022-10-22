@@ -102,6 +102,7 @@ public class Server extends Thread{
     @Override
     public void run(){
         pollSockets();
+        socket.unbind("tcp://" + SOCKET_ACCESS);
         socket.close();
         System.out.println("SERVER: Closed");
     }
@@ -129,16 +130,21 @@ public class Server extends Thread{
         }
     }
 
+    @SuppressWarnings("unchecked")
     private boolean restoreStateFromFile(){
         File myFile = new File(STATE_FILE_PATH);
+
         Map<String,Topic> savedState;
+
         if(!(myFile.isFile()&& myFile.canRead())){
             return false;
         }
         try {
             FileInputStream fInputStream = new FileInputStream(myFile.getAbsolutePath());
             ObjectInputStream objectInputStream = new ObjectInputStream(fInputStream);
+
             savedState = (HashMap<String,Topic>) objectInputStream.readObject();
+            
             fInputStream.close();
             objectInputStream.close();
             
