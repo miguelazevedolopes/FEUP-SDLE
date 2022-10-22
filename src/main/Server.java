@@ -92,6 +92,7 @@ public class Server extends Thread{
         } catch (InterruptedException e) {
             threadPool.shutdownNow();
         }
+        poller.unregister(socket);
         while (!messagesToSend.isEmpty()) {
             ZMsg messageToSend=messagesToSend.poll().createIdentifiedMessage();
             messageToSend.send(this.socket);

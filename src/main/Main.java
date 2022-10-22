@@ -4,9 +4,9 @@ public class Main {
 
     static ZContext zContext = new ZContext();
 
-    public static int incorrectArgs() {
+    public static void incorrectArgs() {
         System.out.println("Incorrect argument usage");
-        return 1;
+        System.exit(1);;
     }
 
     public static void server() {
@@ -15,6 +15,7 @@ public class Main {
             public void run(){
                 server.stopServer();
                 while(server.isAlive());
+                zContext.destroy();
             }
         };
         Runtime.getRuntime().addShutdownHook(shutdownListener);
@@ -26,73 +27,72 @@ public class Main {
         publisher = new Publisher(zContext, id);
         publisher.put(topic, message);
         publisher.closeSocket();
-        System.exit(0);
+        zContext.destroy();
     }
 
     public static  void get(String topic, String id) {
         Subscriber subscriber = new Subscriber(zContext, id);
         subscriber.get(topic);
         subscriber.closeSocket();
-        System.exit(0);
-
+        zContext.destroy();
     }
 
     public static void subscribe(String topic, String id) {
         Subscriber subscriber = new Subscriber(zContext, id);
         subscriber.subscribe(topic);
         subscriber.closeSocket();
-        System.exit(0);
-
+        zContext.destroy();
     }
 
     public static void unsubscribe(String topic, String id) {
             Subscriber subscriber = new Subscriber(zContext, id);
         subscriber.unsubscribe(topic);
         subscriber.closeSocket();
-        System.exit(0);
+        zContext.destroy();
     }
 
     public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("No arguments not provided");
-            return;
+            System.exit(1);
         }
 
         switch (args[0]) {
             case "Server":
                 server();
-                return;
+                break;
             case "Put":
                 if(args.length < 4) {
                     incorrectArgs();
-                    return;
+                    break;
                 }
                 put(args[1], args[2], args[3]);
-                return;
+                break;
             case "Get":
                 if(args.length < 3) {
                     incorrectArgs();
-                    return;
+                    break;
                 }
                 get(args[1], args[2]);
-                return;
+                break;
             case "Subscribe":
                 if(args.length < 3) {
                     incorrectArgs();
-                    return;
+                    break;
                 }
                 subscribe(args[1], args[2]);
-                return;
+                break;
             case "Unsubscribe":
                 if(args.length < 3) {
                     incorrectArgs();
-                    return;
+                    break;
                 }
                 unsubscribe(args[1], args[2]);
-                return;
+                break;
             default:
                 incorrectArgs();
                 break;
         }
+
     }
 }
