@@ -133,7 +133,6 @@ public class Proxy extends Thread{
         File myFile = new File(STATE_FILE_PATH);
         Map<String,Topic> savedState;
         if(!(myFile.isFile()&& myFile.canRead())){
-            System.out.println("No file with name state found or can't read it");
             return false;
         }
         try {

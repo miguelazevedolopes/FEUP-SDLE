@@ -78,6 +78,7 @@ public class SocketOwner {
     }
 
     public void closeSocket(){
+        socketZMQ.disconnect("tcp://" +this.socketEndpoint);
         socketZMQ.close();
     }
 }
