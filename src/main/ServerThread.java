@@ -65,6 +65,11 @@ public class ServerThread implements Runnable{
                     parent.addMessageToSendQueue(errorMsg);
                 }
                 else{
+                    if(!topic.isSubscribed(message.getClientID())){
+                        Message errorMsg=new Message(MessageType.ERROR,message.getClientID(),message.getTopic(), "You've already unsubscribed from that topic or were never subscribed");
+                        parent.addMessageToSendQueue(errorMsg);
+                        return;
+                    }
                     topic.unsubscribe(message.getClientID());
                     ackMessage=new Message(MessageType.ACK,message.getClientID());
                     parent.addMessageToSendQueue(ackMessage);   
