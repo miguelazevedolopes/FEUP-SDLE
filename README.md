@@ -22,13 +22,13 @@ To be sure, these are the specific versions we used. We cannot guarantee that th
 
 To compile the project, run the following command in the root directory of the project: 
 
-    mvn clean compile -q
+    mvn clean compile
 
 # Run
 
 To run the project, run the following command in the root directory of the project:
 
-    mvn exec:java -Dexec.mainClass="Main" -Dexec.args="<command> <arguments>"
+    mvn exec:java -Dexec.mainClass="Main" -Dexec.args="<command> <arguments>" -q
 
 Where &lt;command&gt; is one of the following:
 - *server* - Starts the server and takes no arguments Eg.:`server`
