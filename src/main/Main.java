@@ -58,31 +58,31 @@ public class Main {
         }
 
         switch (args[0]) {
-            case "Server":
+            case "server":
                 server();
                 break;
-            case "Put":
+            case "put":
                 if(args.length < 4) {
                     incorrectArgs();
                     break;
                 }
                 put(args[1], args[2], args[3]);
                 break;
-            case "Get":
+            case "get":
                 if(args.length < 3) {
                     incorrectArgs();
                     break;
                 }
                 get(args[1], args[2]);
                 break;
-            case "Subscribe":
+            case "subscribe":
                 if(args.length < 3) {
                     incorrectArgs();
                     break;
                 }
                 subscribe(args[1], args[2]);
                 break;
-            case "Unsubscribe":
+            case "unsubscribe":
                 if(args.length < 3) {
                     incorrectArgs();
                     break;
