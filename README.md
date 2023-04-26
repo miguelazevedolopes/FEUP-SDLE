@@ -38,3 +38,7 @@ Where &lt;command&gt; is one of the following:
 - *unsubscribe* - Unsubscribes a subscriber with id [arg2] to topic [arg1] Eg.: `unsubscribe Music 1` 
 
 And &lt;command&gt; is a collection of 0, 2 or 3 arguments, dependent of the command required.
+
+## Disclaimer
+
+This repository, and every other repository (I own) named in the format FEUP-COURSENAME on GitHub correspond to the projects I developed during my time as a student at Faculty of Engineering of University of Porto.
